@@ -20,7 +20,8 @@ const useStyles = makeStyles(theme => ({
         },
         borderRadius: '0',
         transition: '.3s',
-        transform: 'translateX(0)'
+        transform: 'translateX(0)',
+        top: 0,
     },
     boxMenuHide: {
         transform: 'translateX(-100%)'

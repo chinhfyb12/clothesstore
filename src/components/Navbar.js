@@ -18,6 +18,7 @@ import Cart from './Cart';
 const useStyles = makeStyles((theme) => ({
     grow: {
         flexGrow: 1,
+        padding: '1rem 0',
     },
     appBar: {
         background: 'white',
@@ -42,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         [theme.breakpoints.down('xs')]: {
             fontSize: '1rem'
-        }
+        },
     },
     cartIcon: {
         color: '#2b2b2b',
@@ -69,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
         zIndex: '8',
         display: 'block',
         background: '#00000045'
+    },
+    test: {
+        display: 'none',
     }
 }));
 
@@ -78,7 +82,7 @@ const Navbar = props => {
 
     return (
         <div className={classes.grow}>
-            <Menu />
+            <Menu className={classes.test}/>
             <Search />
             <Cart />
             <AppBar className={ classes.appBar } position="static">

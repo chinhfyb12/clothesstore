@@ -15,7 +15,7 @@ import Badge from '@material-ui/core/Badge';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     cartCpm: {
         flexGrow: '1',
         width: '33%',
@@ -55,6 +55,7 @@ const useStyles = makeStyles(theme => ({
     },
     listItem: {
         borderBottom: '2px solid black',
+        marginBottom: '10px',
     },
     boxAvatar: {
         marginRight: '2rem',
@@ -82,10 +83,6 @@ const Cart = props => {
                     <Close />
                 </IconButton>
             </div>
-            <div className={classes.fieldToTalMoney}>
-                <span>TỔNG TIỀN:</span>
-                <span style={{ marginLeft: 'auto' }}>0đ</span>
-            </div>
             <List className={classes.listItem}>
                 <ListItem>
                     <ListItemAvatar className={classes.boxAvatar}>
@@ -112,23 +109,27 @@ const Cart = props => {
                             350.000đ
                         </Typography>
                     </ListItemText>
-                    <IconButton>
+                    <IconButton color='secondary'>
                         <DeleteIcon />
                     </IconButton>
                 </ListItem>
             </List>
+            <div className={classes.fieldToTalMoney}>
+                <span>TỔNG TIỀN:</span>
+                <span style={{ marginLeft: 'auto' }}>0đ</span>
+            </div>
             <ListItem style={{marginTop: '1rem'}}>
                 <Button 
                     variant="outlined" 
                     color="primary"
                     className={classes.btnCheckout}
+                    style={{color: '#8013e4'}}
                 >
                     XEM GIỎ HÀNG
                 </Button>
                 <Button 
-                    variant="outlined" 
-                    color="primary" 
-                    style={{ marginLeft: '10px' }}
+                    variant="outlined"
+                    style={{ marginLeft: '10px', color: '#8013e4' }}
                     className={classes.btnCheckout}
                 >
                     THANH TOÁN

@@ -1,2 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
 
+.MuiOutlinedInput-root {
+    border-radius: 0 !important;
+}
+.MuiOutlinedInput-notchedOutline {
+    border-color: rgb(255 255 255 / 0%) !important;
+}
