@@ -9,19 +9,19 @@ import Close from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     searchCpm: {
         flexGrow: '1',
         width: '33%',
         padding: '1rem 2rem',
         boxShadow: 'none',
         boderRadius: 'unset',
-        position: 'absolute',
+        position: 'fixed',
         background: 'white',
         zIndex: 9,
         top: 0,
         right: 0,
-        height: '100vh',
+        minHeight: '100vh',
         transition: '.3s',
         transform: 'translateX(0)',
         paddingTop: '3rem',

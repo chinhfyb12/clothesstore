@@ -2,6 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Card, CardContent, Container, Grid, Typography } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     title: {
@@ -54,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: '1rem',
         width: 'max-content',
         cursor: 'pointer',
+        textDecoration: 'none',
+        color: 'black',
     }
 }))
 
@@ -87,12 +90,12 @@ const Account = () => {
                     </Card>
                 </Grid>
                 <Grid item xs={12}>
-                    <div className={classes.boxLogout}>
+                    <Link to="/login" className={classes.boxLogout}>
                         <Typography componet="p">
                             Đăng xuất
                         </Typography>
                         <ExitToAppIcon />
-                    </div>
+                    </Link>
                 </Grid>
             </Grid>
         </Container>

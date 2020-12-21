@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccordionDetails, AccordionSummary, Checkbox, Container, FormControlLabel, FormGroup, Grid, InputLabel, List, ListItem, Select, Typography } from '@material-ui/core';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
@@ -9,6 +9,7 @@ import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Product from '../components/Product';
 import FormControl from '@material-ui/core/FormControl';
+import Slug from '../Slug';
 
 const useStyles = makeStyles((theme) => ({
     breacrumbs: {
@@ -50,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         fontSize: '0.9rem',
         width: '100%',
+        textTransform: 'uppercase',
     },
     sideBar: {
         width: '350px',
@@ -109,17 +111,28 @@ const ListProducts = () => {
     const [radioValue, setRadioValue] = React.useState(null);
     const [selectValue, setSelectValue] = React.useState(null);
     const [size, setSize] = React.useState(null);
+
+    const listCategory = ['quần', 'áo ngắn', 'áo dài'];
+    const listSize = ['S', 'M', 'L', 'XL'];
+
     let widthScreen = window.innerWidth;
 
-    const handleChangeRadio = (e) => {
-        setRadioValue(e);
+    const handleChangeRadio = (value) => {
+        setRadioValue(value);
     };
     const handleChangeSelect = (e) => {
         setSelectValue(e.target.value)
     }
-    const handleChangeSize = e => {
-        setSize(e.target.name)
+    const handleChangeSize = value => {
+        setSize(value)
     }
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, [])
 
     return (
         <section>
@@ -162,30 +175,20 @@ const ListProducts = () => {
                         </AccordionSummary>
                         <AccordionDetails>
                             <List className={classes.listItemMobile}>
-                                <ListItem className={classes.navItemMenu}>
-                                    <Link 
-                                        to='/'
-                                        className={classes.navLinkMenu}
-                                    >
-                                        SẢN PHẨM
-                                    </Link>
-                                </ListItem>
-                                <ListItem className={classes.navItemMenu}>
-                                    <Link 
-                                        to='/'
-                                        className={classes.navLinkMenu}
-                                    >
-                                        SẢN PHẨM
-                                    </Link>
-                                </ListItem>
-                                <ListItem className={classes.navItemMenu}>
-                                    <Link 
-                                        to='/'
-                                        className={classes.navLinkMenu}
-                                    >
-                                        SẢN PHẨM
-                                    </Link>
-                                </ListItem>
+                                {
+                                    listCategory.map((item, index) => {
+                                        return (
+                                            <ListItem key={ index } className={classes.navItemMenu}>
+                                                <Link 
+                                                    to={ Slug(item) }
+                                                    className={classes.navLinkMenu}
+                                                >
+                                                    { item }
+                                                </Link>
+                                            </ListItem>
+                                        )
+                                    })
+                                }
                             </List>
                         </AccordionDetails>
                     </Accordion>
@@ -267,50 +270,24 @@ const ListProducts = () => {
                                 </AccordionSummary>
                                 <AccordionDetails style={{padding: 0}}>
                                     <FormGroup style={{display: 'flex', flexDirection: 'row'}}>
-                                        <FormControlLabel 
-                                            control={
-                                                <Checkbox
-                                                    checked={size === 'S'}
-                                                    onClick={handleChangeSize}
-                                                    name="S"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="S"
-                                        />
-                                        <FormControlLabel 
-                                            control={
-                                                <Checkbox
-                                                    checked={size === 'M'}
-                                                    onClick={handleChangeSize}
-                                                    name="M"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="M"
-                                        />
-                                        <FormControlLabel 
-                                            control={
-                                                <Checkbox
-                                                    checked={size === 'L'}
-                                                    onClick={handleChangeSize}
-                                                    name="L"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="L"
-                                        />
-                                        <FormControlLabel 
-                                            control={
-                                                <Checkbox
-                                                    checked={size === 'XL'}
-                                                    onClick={handleChangeSize}
-                                                    name="XL"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="XL"
-                                        />
+                                        {
+                                            listSize.map((item, index) => {
+                                                return (
+                                                    <FormControlLabel 
+                                                        control={
+                                                            <Checkbox
+                                                                checked={size === item}
+                                                                onClick={ () => handleChangeSize(item)}
+                                                                name={item}
+                                                                color="primary"
+                                                            />
+                                                        }
+                                                        label={item}
+                                                        key={index}
+                                                    />
+                                                )
+                                            })
+                                        }
                                     </FormGroup>
                                 </AccordionDetails>
                             </Accordion>

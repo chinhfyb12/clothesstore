@@ -22,12 +22,12 @@ const useStyles = makeStyles(() => ({
         padding: '1rem 2rem',
         boxShadow: 'none',
         boderRadius: 'unset',
-        position: 'absolute',
+        position: 'fixed',
         background: 'white',
         zIndex: 9,
         top: 0,
         right: 0,
-        height: '100vh',
+        minHeight: '100vh',
         transition: '.3s',
         transform: 'translateX(0)',
         paddingTop: '3rem',
@@ -94,7 +94,16 @@ const Cart = props => {
                     </ListItemAvatar>
                     <ListItemText>
                         <Typography>
-                            <Link to="/">Sản phẩm 1</Link>
+                            <Link to="/"
+                                style={{
+                                    textDecoration: 'none',
+                                    color: 'black',
+                                    fontFamily: 'Quicksand',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                Sản phẩm 1
+                            </Link>
                         </Typography>
                         <Typography
                             style={{

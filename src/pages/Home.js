@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from '@material-ui/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Product from '../components/Product'
 import SectionSlider from '../components/SectionSlider'
 import { makeStyles } from '@material-ui/core/styles';
@@ -35,6 +35,13 @@ const useStyles = makeStyles(() => ({
 const Home = () => {
 
     const classes = useStyles();
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, [])
 
     return (
         <section>

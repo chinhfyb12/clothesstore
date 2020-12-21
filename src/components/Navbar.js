@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,11 +18,22 @@ import Cart from './Cart';
 const useStyles = makeStyles((theme) => ({
     grow: {
         flexGrow: 1,
-        padding: '1rem 0',
+        padding: '0',
+        background: 'none',
+        position: 'sticky',
+        zIndex: '9',
+        top: 0,
+        transition: '1s',
     },
     appBar: {
-        background: 'white',
         boxShadow:'none',
+        backgroundColor: 'none !important',
+        transition: '.8s',
+    },
+    appBarTran: {
+        boxShadow:'none',
+        backgroundColor: '#000000b8',
+        transition: '.8s',
     },
     menuButton: {
         color: '#2b2b2b',
@@ -30,7 +41,17 @@ const useStyles = makeStyles((theme) => ({
         marginLeft: '1rem',
         [theme.breakpoints.down('xs')]: {
             marginLeft: '0'
-        }
+        },
+        transition: '.8s',
+    },
+    menuButtonTran: {
+        color: 'white',
+        marginRight: theme.spacing(2),
+        marginLeft: '1rem',
+        [theme.breakpoints.down('xs')]: {
+            marginLeft: '0'
+        },
+        transition: '.8s',
     },
     boxIcon: {
         marginRight: 0,
@@ -38,22 +59,48 @@ const useStyles = makeStyles((theme) => ({
     },
     navLink: {
         textDecoration: 'none !important',
-        color: 'Black',
+        color: 'black',
         fontFamily: 'Quicksand',
         fontWeight: 'bold',
         [theme.breakpoints.down('xs')]: {
             fontSize: '1rem'
         },
+        transition: '.8s',
+    },
+    navLinkTran: {
+        textDecoration: 'none !important',
+        color: 'white',
+        fontFamily: 'Quicksand',
+        fontWeight: 'bold',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '1rem'
+        },
+        transition: '.8s',
     },
     cartIcon: {
         color: '#2b2b2b',
         [theme.breakpoints.up('sm')]: {
             margin: '0 1rem'
-        }
+        },
+        transition: '.8s',
+    },
+    cartIconTran: {
+        color: 'white',
+        [theme.breakpoints.up('sm')]: {
+            margin: '0 1rem'
+        },
+        transition: '.8s',
     },
     accountIcon: {
         marginRight: '1rem',
         color: '#2b2b2b',
+        [theme.breakpoints.down('sm')]: {
+            marginRight: '0',
+        }
+    },
+    accountIconTran: {
+        marginRight: '1rem',
+        color: 'white',
         [theme.breakpoints.down('sm')]: {
             marginRight: '0',
         }
@@ -64,15 +111,20 @@ const useStyles = makeStyles((theme) => ({
     spanTag: {
         width: '100%',
         height: '100vh',
-        position: 'absolute',
+        position: 'fixed',
         top: '0',
         left: '0',
         zIndex: '8',
         display: 'block',
-        background: '#00000045'
+        background: '#00000045',
     },
-    test: {
-        display: 'none',
+    searchIcon: {
+        color: '#2b2b2b',
+        transition: '.8s',
+    },
+    searchIconTran: {
+        color: 'white',
+        transition: '.8s',
     }
 }));
 
@@ -80,16 +132,71 @@ const Navbar = props => {
 
     const classes = useStyles();
 
+    //style navbar
+    const [appBarBg, setAppBarBg] = useState('appBar')
+    const appBarRef = useRef();
+    appBarRef.current = appBarBg;
+
+    const [menuButtonBg, setMenuButtonBg] = useState('menuButton')
+    const menuButtonRef = useRef();
+    menuButtonRef.current = menuButtonBg;
+
+    const [navLinkBg, setNavLinkBg] = useState('navLink')
+    const navLinkRef = useRef();
+    navLinkRef.current = navLinkBg;
+
+    const [searchBg, setSearchBg] = useState('searchIcon')
+    const searchBgRef = useRef();
+    searchBgRef.current = searchBg;
+
+    const [cartBg, setCartBg] = useState('cartIcon')
+    const cartRef = useRef();
+    cartRef.current = cartBg;
+
+    const [accountBg, setAccountBg] = useState('accountIcon')
+    const accountRef = useRef();
+    accountRef.current = accountBg;
+    //end style
+
+    useEffect(() => {
+        //style navbar
+        const handleScroll = () => {
+            const show = window.scrollY > 300;
+            console.log(show)
+            if(show) {
+                setAppBarBg('appBarTran')
+                setMenuButtonBg('menuButtonTran')
+                setNavLinkBg('navLinkTran')
+                setSearchBg('searchIconTran')
+                setCartBg('cartIconTran')
+                setAccountBg('accountIconTran')
+            } else {
+                setAppBarBg('appBar')
+                setMenuButtonBg('menuButton')
+                setNavLinkBg('navLink')
+                setSearchBg('searchIcon')
+                setCartBg('cartIcon')
+                setAccountBg('accountIcon')
+            }
+        }
+        document.addEventListener('scroll', handleScroll);
+        //end style navbar
+
+        return () => {
+            document.removeEventListener('scroll', handleScroll);
+        }
+    }, [])
+
     return (
         <div className={classes.grow}>
-            <Menu className={classes.test}/>
+            <Menu />
             <Search />
             <Cart />
-            <AppBar className={ classes.appBar } position="static">
+            <AppBar className={ classes[appBarRef.current] } position="static" color="none">
                 <Toolbar>
                     <IconButton
                         edge="start"
-                        className={classes.menuButton}
+                        className={classes[menuButtonRef.current]}
                         color="#2b2b2b"
                         aria-label="open drawer"
                         onClick={ () => props.changeStatusMenu() }
@@ -97,18 +204,18 @@ const Navbar = props => {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap>
-                        <Link to="/" className={classes.navLink}> Clothes Shop </Link>
+                        <Link to="/" className={classes[navLinkRef.current]}> Clothes Shop </Link>
                     </Typography>
                     <div className={classes.boxIcon}>
                         <IconButton 
                             aria-label="show" 
-                            style={{ color: '#2b2b2b' }}
                             onClick={ () => props.changeStatusSearch() }
+                            className={classes[searchBgRef.current]}
                         >
                             <SearchIcon />
                         </IconButton>
                         <IconButton 
-                            className={classes.cartIcon} 
+                            className={classes[cartRef.current]} 
                             aria-label="show 1 new products"
                             onClick={ () => props.changeStatusCart() }
                         >
@@ -116,13 +223,16 @@ const Navbar = props => {
                                  <ShoppingCartIcon />
                             </Badge>
                         </IconButton>
-                        <IconButton 
-                            edge="end" 
-                            aria-label="show of current user" 
-                            className={classes.accountIcon}
-                        >
-                            <AccountCircle />
-                        </IconButton>
+                        <Link to="/account">
+
+                            <IconButton 
+                                edge="end" 
+                                aria-label="show of current user" 
+                                className={classes[accountRef.current]}
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                        </Link>
                     </div>
                 </Toolbar>
             </AppBar>

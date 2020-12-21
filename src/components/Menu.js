@@ -8,12 +8,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import Slug from '../Slug';
 
 const useStyles = makeStyles(theme => ({
     boxMenu: {
         width: '200px',
         height: '100vh',
-        position: 'absolute',
+        position: 'fixed',
         zIndex: '9',
         [theme.breakpoints.up('sm')]: {
             width: '300px',
@@ -32,9 +33,14 @@ const useStyles = makeStyles(theme => ({
         fontFamily: 'Quicksand',
         fontWeight: 'bold',
         fontSize: '1.1rem',
+        textTransform: 'uppercase',
+        padding: '1rem',
+        width: 'auto',
+        display: 'block',
     },
     navItem: {
-        padding: '1rem',
+        padding: '0',
+        height: 'auto',
     },
     closeBtn: { 
         marginLeft: 'auto',
@@ -53,6 +59,12 @@ const Menu = props => {
 
     const classes = useStyles();
 
+    const listMenu = ['quần', 'áo dài', 'áo ngắn'];
+
+    const handleClickMenu = () => {
+        props.changeStatusMenu();
+    }
+
     return (
         <Paper className={ props.statusMenu ? `${classes.boxMenu} ${classes.boxMenuHide}` : `${classes.boxMenu}` }>
             <div className={ classes.divCloseBtn }>
@@ -62,25 +74,26 @@ const Menu = props => {
             </div>
             <MenuList>
                 <MenuItem className={ classes.navItem }>
-                    <Typography variant="inherit">
-                        <Link className={classes.navLink} to="/">Trang chủ</Link>
+                    <Typography variant="inherit" style={{width: '100%'}}>
+                        <Link onClick={handleClickMenu} className={classes.navLink} to="/">Trang chủ</Link>
                     </Typography>
                 </MenuItem>
                 <MenuItem className={ classes.navItem }>
-                    <Typography variant="inherit">
-                        <Link className={classes.navLink} to="/">Trang chủ</Link>
+                    <Typography variant="inherit" style={{width: '100%'}}>
+                        <Link onClick={handleClickMenu} className={classes.navLink} to="/all">Sản phẩm</Link>
                     </Typography>
                 </MenuItem>
-                <MenuItem className={ classes.navItem }>
-                    <Typography variant="inherit">
-                        <Link className={classes.navLink} to="/">Trang chủ</Link>
-                    </Typography>
-                </MenuItem>
-                <MenuItem className={ classes.navItem }>
-                    <Typography variant="inherit">
-                        <Link className={classes.navLink} to="/">Trang chủ</Link>
-                    </Typography>
-                </MenuItem>
+                {
+                    listMenu.map((item, index) => {
+                        return (
+                            <MenuItem key={index} className={ classes.navItem }>
+                                <Typography variant="inherit" style={{width: '100%'}}>
+                                    <Link onClick={handleClickMenu} className={classes.navLink} to={Slug(item)}>{item}</Link>
+                                </Typography>
+                            </MenuItem>
+                        )
+                    })
+                }
             </MenuList>
         </Paper>
     )

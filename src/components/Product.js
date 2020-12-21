@@ -7,7 +7,12 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles(theme => ({
     root: {
         boxShadow: 'unset',
-        margin: '1rem'
+        margin: '1rem',
+        transition: '.3s',
+        '&:hover': {
+            boxShadow: '0 4px 2px rgba(0, 0, 0, 0.02), 0 9.6px 4.4px rgba(0, 0, 0, 0.023), 0 18.2px 8px rgba(0, 0, 0, 0.027), 0 32.4px 14.1px rgba(0, 0, 0, 0.032), 0 60.6px 27.3px rgba(0, 0, 0, 0.039), 0 145px 80px rgba(0, 0, 0, 0.05)',
+            transform: 'translateY(-3px)',
+        }
     },
     cardContent: {
         display: 'flex',
@@ -53,7 +58,7 @@ const useStyles = makeStyles(theme => ({
         opacity: 0,
         transition: '.3s',
         cursor: 'pointer',
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('sm')]: {
             transform: 'translateY(0)',
             opacity: 1,        
         }
