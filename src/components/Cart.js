@@ -15,7 +15,7 @@ import Badge from '@material-ui/core/Badge';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     cartCpm: {
         flexGrow: '1',
         width: '33%',
@@ -32,6 +32,10 @@ const useStyles = makeStyles(() => ({
         transform: 'translateX(0)',
         paddingTop: '3rem',
         fontFamily: 'Quicksand',
+        [theme.breakpoints.down('sm')]: {
+            width: '85%',
+            padding: '1rem',
+        }
     },
     hideCartCpm: {
         transform: 'translateX(100%)',
@@ -59,13 +63,27 @@ const useStyles = makeStyles(() => ({
     },
     boxAvatar: {
         marginRight: '2rem',
-        height: '60px',
+        minHeight: '60px',
         width: '60px',
+        [theme.breakpoints.down('sm')]: {
+            marginRight: '1rem',
+            height: 50,
+            width: 50,
+        }
     },
     avatar: {
         borderRadius: 0,
         width: '100%',
         height: '100%'
+    },
+    listButton: {
+        marginTop: '1rem',
+    },
+    item: {
+        [theme.breakpoints.down('sm')]: {
+            paddingLeft: 0,
+            paddingRight: 0,
+        }
     }
 }));
 
@@ -84,7 +102,7 @@ const Cart = props => {
                 </IconButton>
             </div>
             <List className={classes.listItem}>
-                <ListItem>
+                <ListItem className={classes.item}>
                     <ListItemAvatar className={classes.boxAvatar}>
                         <Badge color="primary" badgeContent={ 1 } style={{height: '100%'}}>
                             <Link to='/' style={{height: '100%'}}>
@@ -127,22 +145,28 @@ const Cart = props => {
                 <span>TỔNG TIỀN:</span>
                 <span style={{ marginLeft: 'auto' }}>0đ</span>
             </div>
-            <ListItem style={{marginTop: '1rem'}}>
-                <Button 
-                    variant="outlined" 
-                    color="primary"
-                    className={classes.btnCheckout}
-                    style={{color: '#8013e4'}}
-                >
-                    XEM GIỎ HÀNG
-                </Button>
-                <Button 
-                    variant="outlined"
-                    style={{ marginLeft: '10px', color: '#8013e4' }}
-                    className={classes.btnCheckout}
-                >
-                    THANH TOÁN
-                </Button>
+            <ListItem className={classes.listButton}>
+                <Link to="/cart" style={{textDecoration: 'none'}}>        
+                    <Button 
+                        variant="outlined" 
+                        color="primary"
+                        className={classes.btnCheckout}
+                        style={{color: '#8013e4'}}
+                        onClick={ () => props.changeStatusCart() }
+                    >
+                        GIỎ HÀNG
+                    </Button>
+                </Link>
+                <Link to="/checkout" style={{textDecoration: 'none'}}> 
+                    <Button 
+                        variant="outlined"
+                        style={{ marginLeft: '10px', color: '#8013e4' }}
+                        className={classes.btnCheckout}
+                        onClick={ () => props.changeStatusCart() }
+                    > 
+                        THANH TOÁN
+                    </Button>
+                </Link>
             </ListItem>
         </Paper>
     )

@@ -3,8 +3,15 @@ import './App.css';
 import Footer from "./components/Footer";
 import Navbar from './components/Navbar';
 import RouterURL from "./components/RouterURL";
+import { connect } from 'react-redux';
 
-function App() {
+function App(props) {
+
+  const initPathname = window.location.pathname;
+  if(initPathname) {
+    props.sendInitPathname(initPathname);
+  }
+
   return (
     <Router>
         <Navbar />
@@ -14,4 +21,13 @@ function App() {
   );
 }
 
-export default App;
+const mapDispatchToProps = dispatch => {
+  return {
+    sendInitPathname: initPathname => dispatch({type: "SEND_INIT_PATHNAME", initPathname}),
+  }
+}
+const mapStateToProps = state => {
+  return {}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

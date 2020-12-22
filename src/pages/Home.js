@@ -1,8 +1,10 @@
 import { Box, Grid, Typography } from '@material-ui/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import Product from '../components/Product'
 import SectionSlider from '../components/SectionSlider'
 import { makeStyles } from '@material-ui/core/styles';
+import { db } from '../firebase';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 
 const useStyles = makeStyles(() => ({
     listGrid: {
@@ -36,12 +38,27 @@ const Home = () => {
 
     const classes = useStyles();
 
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }, [])
+    const [products, setProducts] = React.useState([]);
+
+    useDeepCompareEffect(() => {
+        db.collection('clothes')
+            .limit(10)
+            .onSnapshot((snapshot) => {
+                const listProducts = snapshot.docs.map(doc => {
+                    return {
+                        ...doc.data(),
+                        price: doc.data().price.toString()
+                    }
+                })
+                setProducts(listProducts);
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            })
+
+        
+    }, [products])
 
     return (
         <section>
@@ -52,21 +69,21 @@ const Home = () => {
                 </Typography>
             </Box>
             <Grid container className={classes.listGrid}>
-                <Grid item lg={3} md={3} sm={4} xs={6}>
-                    <Product />
-                </Grid>
-                <Grid item lg={3} md={3} sm={4} xs={6}>
-                    <Product />
-                </Grid>
-                <Grid item lg={3} md={3} sm={4} xs={6}>
-                    <Product />
-                </Grid>
-                <Grid item lg={3} md={3} sm={4} xs={6}>
-                    <Product />
-                </Grid>
-                <Grid item lg={3} md={3} sm={4} xs={6}>
-                    <Product />
-                </Grid>
+                {
+                    products.map(product => {
+                        return (
+                            <Grid key={product.codeProduct} item lg={3} md={3} sm={4} xs={6}>
+                                <Product 
+                                    nameProduct={product.nameProduct}
+                                    price={product.price}
+                                    nameCategory={product.nameCategory}
+                                    imgUrl={product.imgUrl}
+                                    codeProduct={product.codeProduct}
+                                />
+                            </Grid>
+                        )
+                    })
+                }
             </Grid>
         </section>
     )

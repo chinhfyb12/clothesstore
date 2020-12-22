@@ -1,8 +1,10 @@
 import React from 'react';
 import { Switch, Route } from "react-router-dom";
 import routes from '../routes';
+import { connect } from 'react-redux';
+import ProductDetail from '../pages/ProductDetail'
 
-const RouterURL = () => {
+const RouterURL = props => {
     function showRouterURL(routes) {
         let result = null;
         if(routes) {
@@ -20,8 +22,18 @@ const RouterURL = () => {
     return(
         <Switch>
             { showRouterURL(routes) }
+            <Route path={props.pathProduct === null ? props.initPathname : `/${props.pathProduct}/:slug.:id`} exact={true}>
+                <ProductDetail />
+            </Route>
         </Switch>
     )
 }
 
-export default RouterURL;
+const mapStateToProps = state => {
+    return {
+        pathProduct: state.pathProduct,
+        initPathname: state.initPathname
+    }
+}
+
+export default connect(mapStateToProps)(RouterURL);

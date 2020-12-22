@@ -5,6 +5,8 @@ import Account from './pages/Account';
 import ListProducts from './pages/ListProducts';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
 
 const routes = [
     {
@@ -48,9 +50,19 @@ const routes = [
         main: () => <Login />
     },
     {
+        path: '/cart',
+        exact: false,
+        main: () => <Cart />
+    },
+    {
         path: '/register',
         exact: false,
         main: () => <Register/>
+    },
+    {
+        path: '/detail',
+        exact: false,
+        main: () => <ProductDetail/>
     },
 ]
 

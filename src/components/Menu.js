@@ -41,6 +41,22 @@ const useStyles = makeStyles(theme => ({
     navItem: {
         padding: '0',
         height: 'auto',
+        borderBottom: '1px solid #ececec',
+        position: 'relative',
+        marginBottom: 1,
+        '&:before': {
+            position: 'absolute',
+            content: '""',
+            width: 0,
+            height: 1,
+            background: 'black',
+            bottom: 0,
+            left: 0,
+            transition: '.3s',
+        },
+        '&:hover:before': {
+            width: '100%',
+        }
     },
     closeBtn: { 
         marginLeft: 'auto',

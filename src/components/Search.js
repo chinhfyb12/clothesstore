@@ -9,7 +9,7 @@ import Close from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     searchCpm: {
         flexGrow: '1',
         width: '33%',
@@ -25,6 +25,10 @@ const useStyles = makeStyles(() => ({
         transition: '.3s',
         transform: 'translateX(0)',
         paddingTop: '3rem',
+        [theme.breakpoints.down('sm')]: {
+            width: '85%',
+            padding: '1rem',
+        }
     },
     hideSearchCpm: {
         transform: 'translateX(100%)'
@@ -39,7 +43,10 @@ const useStyles = makeStyles(() => ({
     },
     form: {
         display: 'flex',
-        padding: '0 1rem'
+        padding: '0 1rem',
+        [theme.breakpoints.down('sm')]: {
+            padding: 0
+        }
     },
     boxTitle: {
         display: 'flex',

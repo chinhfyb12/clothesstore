@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import logo from '../images/je1hwdAq_2x.jpg'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -58,24 +59,11 @@ const useStyles = makeStyles((theme) => ({
         marginLeft: 'auto'
     },
     navLink: {
-        textDecoration: 'none !important',
-        color: 'black',
-        fontFamily: 'Quicksand',
-        fontWeight: 'bold',
+        width: 70,
+        display: 'flex',
         [theme.breakpoints.down('xs')]: {
             fontSize: '1rem'
         },
-        transition: '.8s',
-    },
-    navLinkTran: {
-        textDecoration: 'none !important',
-        color: 'white',
-        fontFamily: 'Quicksand',
-        fontWeight: 'bold',
-        [theme.breakpoints.down('xs')]: {
-            fontSize: '1rem'
-        },
-        transition: '.8s',
     },
     cartIcon: {
         color: '#2b2b2b',
@@ -96,14 +84,16 @@ const useStyles = makeStyles((theme) => ({
         color: '#2b2b2b',
         [theme.breakpoints.down('sm')]: {
             marginRight: '0',
-        }
+        },
+        transition: '.8s',
     },
     accountIconTran: {
         marginRight: '1rem',
         color: 'white',
         [theme.breakpoints.down('sm')]: {
             marginRight: '0',
-        }
+        },
+        transition: '.8s',
     },
     boxMenu: {
         position: 'absolute',
@@ -141,10 +131,6 @@ const Navbar = props => {
     const menuButtonRef = useRef();
     menuButtonRef.current = menuButtonBg;
 
-    const [navLinkBg, setNavLinkBg] = useState('navLink')
-    const navLinkRef = useRef();
-    navLinkRef.current = navLinkBg;
-
     const [searchBg, setSearchBg] = useState('searchIcon')
     const searchBgRef = useRef();
     searchBgRef.current = searchBg;
@@ -161,19 +147,16 @@ const Navbar = props => {
     useEffect(() => {
         //style navbar
         const handleScroll = () => {
-            const show = window.scrollY > 300;
-            console.log(show)
+            const show = window.scrollY > 200;
             if(show) {
                 setAppBarBg('appBarTran')
                 setMenuButtonBg('menuButtonTran')
-                setNavLinkBg('navLinkTran')
                 setSearchBg('searchIconTran')
                 setCartBg('cartIconTran')
                 setAccountBg('accountIconTran')
             } else {
                 setAppBarBg('appBar')
                 setMenuButtonBg('menuButton')
-                setNavLinkBg('navLink')
                 setSearchBg('searchIcon')
                 setCartBg('cartIcon')
                 setAccountBg('accountIcon')
@@ -204,7 +187,9 @@ const Navbar = props => {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap>
-                        <Link to="/" className={classes[navLinkRef.current]}> Clothes Shop </Link>
+                        <Link to="/" className={classes.navLink}>
+                            <img style={{width: '100%'}} src={logo} alt=""/>
+                        </Link>
                     </Typography>
                     <div className={classes.boxIcon}>
                         <IconButton 

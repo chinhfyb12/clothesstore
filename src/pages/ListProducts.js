@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccordionDetails, AccordionSummary, Checkbox, Container, FormControlLabel, FormGroup, Grid, InputLabel, List, ListItem, Select, Typography } from '@material-ui/core';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
@@ -10,6 +10,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Product from '../components/Product';
 import FormControl from '@material-ui/core/FormControl';
 import Slug from '../Slug';
+import useDeepCompareEffect from 'use-deep-compare-effect';
+import formatMoney from '../formatMoney';
+import { db } from '../firebase';
+import { useRouteMatch } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
     breacrumbs: {
@@ -108,9 +113,14 @@ const ListProducts = () => {
 
     const classes = useStyles();
 
+    const { path } = useRouteMatch();
+
     const [radioValue, setRadioValue] = React.useState(null);
     const [selectValue, setSelectValue] = React.useState(null);
     const [size, setSize] = React.useState(null);
+
+    const [products, setProducts] = React.useState([]);
+    const [nameCategory, setNameCategory] = React.useState(null);
 
     const listCategory = ['quần', 'áo ngắn', 'áo dài'];
     const listSize = ['S', 'M', 'L', 'XL'];
@@ -127,12 +137,55 @@ const ListProducts = () => {
         setSize(value)
     }
 
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }, [])
+    useDeepCompareEffect(() => {
+        if(path.slice(path.lastIndexOf('/') + 1)) {
+            if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
+                db.collection('clothes')
+                .onSnapshot(snapshoot => {
+                    if(snapshoot) {
+                        const listProduct = snapshoot.docs.map(cafe => {
+                            return {
+                                ...cafe.data(),
+                                docKey: cafe.id
+                            }
+                        });
+                        if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                            setNameCategory(listProduct[0].nameCategory)
+                        }
+                        setProducts(listProduct);
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                })
+            } else {
+                db.collection('clothes')
+                    .where('pathCategory', 'array-contains-any', [path.slice(path.lastIndexOf('/') + 1)])
+                    .onSnapshot(snapshoot => {
+                        if(snapshoot) {
+                            const listProduct = snapshoot.docs.map(cafe => {
+                                return {
+                                    ...cafe.data(),
+                                    docKey: cafe.id
+                                }
+                            });
+                            if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                                setNameCategory(listProduct[0].nameCategory)
+                            }
+                            setProducts(listProduct);
+    
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        }
+                    })
+            }
+        }
+        
+    }, [products])
 
     return (
         <section>
@@ -147,14 +200,18 @@ const ListProducts = () => {
                             Trang chủ
                         </Link>
                         <Link 
-                            to='/' 
+                            to='/all' 
                             className={classes.navLink}
                         >
                             Sản phẩm
                         </Link>
-                        <Typography className={classes.typography}>
-                            Tất cả sản phẩm
-                        </Typography>
+                        {
+                            nameCategory ? (
+                                <Typography variant="h5" className={classes.titleProducts}>
+                                    { nameCategory }
+                                </Typography>
+                            ) : ''
+                        }
                     </Breadcrumbs>
                 </Grid>
             </Grid>
@@ -296,9 +353,17 @@ const ListProducts = () => {
                 </div>
                 <Grid container className={classes.listProduct}>
                     <Grid item xs={12} style={{display: 'flex', alignItems: 'center', marginBottom: '1rem'}}>
-                        <Typography variant="h5" className={classes.titleProducts}>
-                            Tất cả sản phẩm
-                        </Typography>
+                        {
+                            nameCategory ? (
+                                <Typography variant="h5" className={classes.titleProducts}>
+                                    { nameCategory }
+                                </Typography>
+                            ) : (
+                                <Typography variant="h5" className={classes.titleProducts}>
+                                    Tất cả sản phẩm
+                                </Typography>
+                            )
+                        }
                         <FormControl className={classes.formSelect}>
                             <InputLabel>Sắp xếp</InputLabel>
                             <Select
@@ -312,24 +377,21 @@ const ListProducts = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
-                    <Grid item lg={3} md={4} xs={6}>
-                        <Product />
-                    </Grid>
+                    {
+                        products.map(product => {
+                            return (
+                                <Grid key={product.codeProduct} item lg={3} md={3} sm={4} xs={6}>
+                                    <Product 
+                                        nameProduct={product.nameProduct}
+                                        price={product.price}
+                                        nameCategory={product.nameCategory}
+                                        imgUrl={product.imgUrl}
+                                        codeProduct={product.codeProduct}
+                                    />
+                                </Grid>
+                            )
+                        })
+                    }
                 </Grid>
             </Container>
         </section>

@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import { Box, CardContent, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import formatMoney from '../formatMoney';
+import Slug from '../Slug';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -69,11 +72,15 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const Product = () => {
+const Product = props => {
 
     const [addShow, setAddShow] = useState(false)
 
-    const classes = useStyles();
+    const classes = useStyles()
+
+    const handleClickLink = () => {
+        props.sendPath(Slug(props.nameCategory))
+    }
     
     return (
         <Card 
@@ -82,8 +89,12 @@ const Product = () => {
             onMouseOut={ () => setAddShow(false)}>
             <CardContent className={classes.cardContent}>
                 <div className={classes.boxImg}>
-                    <Link className={classes.navLinkImg}>
-                        <img style={{width: '100%'}} src='https://product.hstatic.net/1000306633/product/499e30c9-1681-4f82-92ac-9e988993e99d_9f371ceea2ff45d697cb2a152a9439ef_grande.jpg' alt=""/>
+                    <Link 
+                        className={classes.navLinkImg} 
+                        to={`/${Slug(props.nameCategory)}/${Slug(props.nameProduct)}.${props.codeProduct}`}
+                        onClick={ () => handleClickLink() }
+                    >
+                        <img style={{width: '100%'}} src={props.imgUrl} alt=""/>
                     </Link>
                     <Typography 
                         component="p" 
@@ -92,22 +103,31 @@ const Product = () => {
                         THÊM VÀO GIỎ
                     </Typography>
                 </div>
-                <Link className={classes.navLink}>
+                <Link 
+                    className={classes.navLink} 
+                    to={`/${Slug(props.nameCategory)}/${Slug(props.nameProduct)}-${props.codeProduct}`}
+                    onClick={ () => handleClickLink() }>
                     <Box 
                         component="div" 
                         textOverflow="ellipsis"
                     >
                         <Typography component="p" className={classes.titleProduct}>
-                            SẢN PHẨM 1
+                            { props.nameProduct }
                         </Typography>
                     </Box>
                 </Link>
                 <Typography className={classes.titleContent} variant="body2" component="p">
-                    550.000 đ
+                    { formatMoney(props.price) } đ
                 </Typography>
             </CardContent>
         </Card>
     )
 }
 
-export default Product;
+const mapDispatchToProps = dispatch => {
+    return {
+        sendPath: path => dispatch({type: "SEND_PATH", path}),
+    }
+}
+
+export default connect(null, mapDispatchToProps)(Product);
