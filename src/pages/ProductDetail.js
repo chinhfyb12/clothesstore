@@ -6,11 +6,11 @@ import HomeIcon from '@material-ui/icons/Home';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
-import Product from '../components/Product';
 import formatMoney from '../formatMoney';
 import { db } from '../firebase';
 import Slug from '../Slug';
 import { connect } from 'react-redux';
+import Products from '../components/Products';
 
 const useStyles = makeStyles((theme) => ({
     listImg: {
@@ -192,9 +192,10 @@ const ProductDetail = props => {
                     setNameCategory(doc.data().nameCategory)
                     setSizeList(doc.data().size)
                     setImgUrlList(doc.data().imgUrl)
+                    setImg(doc.data().imgUrl[0]);
                     window.scrollTo({
                         top: 0,
-                        behavior: 'smooth'
+                        behavior: 'smooth',
                     });
                 })
             })
@@ -343,21 +344,9 @@ const ProductDetail = props => {
                         SẢN PHẨM LIÊN QUAN
                     </Typography>
                 </Grid>
-                {
-                    listProducts.map(product => {
-                        return (
-                            <Grid key={product.codeProduct} item xs={6} sm={4} md={4} lg={3}>
-                                <Product 
-                                    nameProduct={product.nameProduct}
-                                    price={product.price}
-                                    nameCategory={product.nameCategory}
-                                    imgUrl={product.imgUrl}
-                                    codeProduct={product.codeProduct}
-                                />
-                            </Grid>
-                        )
-                    })
-                }
+                <Products>
+                    { listProducts }
+                </Products>
             </Grid> 
         </Container>
     )

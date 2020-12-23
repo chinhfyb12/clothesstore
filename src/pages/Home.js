@@ -1,6 +1,6 @@
 import { Box, Grid, Typography } from '@material-ui/core'
 import React from 'react'
-import Product from '../components/Product'
+import Products from '../components/Products'
 import SectionSlider from '../components/SectionSlider'
 import { makeStyles } from '@material-ui/core/styles';
 import { db } from '../firebase';
@@ -51,12 +51,11 @@ const Home = () => {
                     }
                 })
                 setProducts(listProducts);
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
             })
-
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
         
     }, [products])
 
@@ -69,21 +68,9 @@ const Home = () => {
                 </Typography>
             </Box>
             <Grid container className={classes.listGrid}>
-                {
-                    products.map(product => {
-                        return (
-                            <Grid key={product.codeProduct} item lg={3} md={3} sm={4} xs={6}>
-                                <Product 
-                                    nameProduct={product.nameProduct}
-                                    price={product.price}
-                                    nameCategory={product.nameCategory}
-                                    imgUrl={product.imgUrl}
-                                    codeProduct={product.codeProduct}
-                                />
-                            </Grid>
-                        )
-                    })
-                }
+                <Products>
+                    { products }
+                </Products>
             </Grid>
         </section>
     )

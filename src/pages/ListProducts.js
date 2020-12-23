@@ -7,14 +7,13 @@ import HomeIcon from '@material-ui/icons/Home';
 import Radio from '@material-ui/core/Radio';
 import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Product from '../components/Product';
 import FormControl from '@material-ui/core/FormControl';
 import Slug from '../Slug';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import formatMoney from '../formatMoney';
 import { db } from '../firebase';
 import { useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
+import Products from '../components/Products';
 
 const useStyles = makeStyles((theme) => ({
     breacrumbs: {
@@ -377,21 +376,9 @@ const ListProducts = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    {
-                        products.map(product => {
-                            return (
-                                <Grid key={product.codeProduct} item lg={3} md={3} sm={4} xs={6}>
-                                    <Product 
-                                        nameProduct={product.nameProduct}
-                                        price={product.price}
-                                        nameCategory={product.nameCategory}
-                                        imgUrl={product.imgUrl}
-                                        codeProduct={product.codeProduct}
-                                    />
-                                </Grid>
-                            )
-                        })
-                    }
+                    <Products>
+                        { products } 
+                    </Products>
                 </Grid>
             </Container>
         </section>

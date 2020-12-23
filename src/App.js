@@ -1,3 +1,4 @@
+import React from 'react'
 import { BrowserRouter as Router} from "react-router-dom";
 import './App.css';
 import Footer from "./components/Footer";
@@ -27,7 +28,9 @@ const mapDispatchToProps = dispatch => {
   }
 }
 const mapStateToProps = state => {
-  return {}
+  return {
+    
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -104,7 +104,7 @@ const Menu = props => {
                         return (
                             <MenuItem key={index} className={ classes.navItem }>
                                 <Typography variant="inherit" style={{width: '100%'}}>
-                                    <Link onClick={handleClickMenu} className={classes.navLink} to={Slug(item)}>{item}</Link>
+                                    <Link onClick={handleClickMenu} className={classes.navLink} to={`/${Slug(item)}`}>{item}</Link>
                                 </Typography>
                             </MenuItem>
                         )

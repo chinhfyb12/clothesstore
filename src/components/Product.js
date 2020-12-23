@@ -74,12 +74,16 @@ const useStyles = makeStyles(theme => ({
 
 const Product = props => {
 
-    const [addShow, setAddShow] = useState(false)
-
     const classes = useStyles()
+
+    const [addShow, setAddShow] = useState(false)
 
     const handleClickLink = () => {
         props.sendPath(Slug(props.nameCategory))
+    }
+
+    const hanleClickAddToCart = () => {
+        props.codeProductAddCart(props.codeProduct)
     }
     
     return (
@@ -99,13 +103,14 @@ const Product = props => {
                     <Typography 
                         component="p" 
                         className={ addShow ? `${classes.addCart} ${classes.addCartShow}` : `${classes.addCart}`}
+                        onClick={ () => hanleClickAddToCart() }
                     >
                         THÊM VÀO GIỎ
                     </Typography>
                 </div>
                 <Link 
                     className={classes.navLink} 
-                    to={`/${Slug(props.nameCategory)}/${Slug(props.nameProduct)}-${props.codeProduct}`}
+                    to={`/${Slug(props.nameCategory)}/${Slug(props.nameProduct)}.${props.codeProduct}`}
                     onClick={ () => handleClickLink() }>
                     <Box 
                         component="div" 
@@ -127,7 +132,13 @@ const Product = props => {
 const mapDispatchToProps = dispatch => {
     return {
         sendPath: path => dispatch({type: "SEND_PATH", path}),
+        test: test => dispatch({type: 'TEST', test})
+    }
+}
+const mapStateToProps = state => {
+    return {
+        
     }
 }
 
-export default connect(null, mapDispatchToProps)(Product);
+export default connect(mapStateToProps, mapDispatchToProps)(Product);

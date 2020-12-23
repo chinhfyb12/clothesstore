@@ -1,5 +1,5 @@
 import Paper from '@material-ui/core/Paper'
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,6 +14,8 @@ import { Link } from 'react-router-dom';
 import Badge from '@material-ui/core/Badge';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { connect } from 'react-redux';
+import Slug from '../Slug';
+import formatMoney from '../formatMoney';
 
 const useStyles = makeStyles((theme) => ({
     cartCpm: {
@@ -89,6 +91,13 @@ const useStyles = makeStyles((theme) => ({
 
 const Cart = props => {
 
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        if(localStorage.getItem('cart')) {
+            setProducts(JSON.parse(localStorage.getItem('cart')))
+        }
+    }, [props.products])
     const classes = useStyles();
 
     return (
@@ -102,48 +111,61 @@ const Cart = props => {
                 </IconButton>
             </div>
             <List className={classes.listItem}>
-                <ListItem className={classes.item}>
-                    <ListItemAvatar className={classes.boxAvatar}>
-                        <Badge color="primary" badgeContent={ 1 } style={{height: '100%'}}>
-                            <Link to='/' style={{height: '100%'}}>
-                                <Avatar className={classes.avatar} src="https://scontent.fhan2-4.fna.fbcdn.net/v/t1.0-9/r180/102818648_738587936883572_7502889057776553100_n.jpg?_nc_cat=104&ccb=2&_nc_sid=09cbfe&_nc_ohc=R01YFQ-LuE8AX9GDVzX&_nc_ht=scontent.fhan2-4.fna&oh=35f134f9c90655f8a141cc03251d9ea6&oe=6002D74C" />
-                            </Link>
-                        </Badge>
-                    </ListItemAvatar>
-                    <ListItemText>
-                        <Typography>
-                            <Link to="/"
-                                style={{
-                                    textDecoration: 'none',
-                                    color: 'black',
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                Sản phẩm 1
-                            </Link>
-                        </Typography>
-                        <Typography
-                            style={{
-                                fontSize: '13px',
-                                fontWeight: 'normal',
-                                color: '#ababab',
-                            }}
-                        >
-                            <span>ĐEN</span>/<span>S</span>
-                        </Typography>
-                        <Typography>
-                            350.000đ
-                        </Typography>
-                    </ListItemText>
-                    <IconButton color='secondary'>
-                        <DeleteIcon />
-                    </IconButton>
-                </ListItem>
+                {
+                    products.map(product => {
+                        return (
+                            <ListItem className={classes.item}>
+                                <ListItemAvatar className={classes.boxAvatar}>
+                                    <Badge color="primary" badgeContent={ product.quantity } style={{height: '100%'}}>
+                                        <Link 
+                                            to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                            style={{height: '100%'}}
+                                        >
+                                            <Avatar className={classes.avatar} src={product.imgUrl[0]} />
+                                        </Link>
+                                    </Badge>
+                                </ListItemAvatar>
+                                <ListItemText>
+                                    <Typography>
+                                        <Link to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                            style={{
+                                                textDecoration: 'none',
+                                                color: 'black',
+                                                fontFamily: 'Quicksand',
+                                                fontWeight: 'bold',
+                                            }}
+                                        >
+                                            { product.nameProduct }
+                                        </Link>
+                                    </Typography>
+                                    <Typography
+                                        style={{
+                                            fontSize: '13px',
+                                            fontWeight: 'normal',
+                                            color: '#ababab',
+                                        }}
+                                    >
+                                        <span>ĐEN</span>/<span>{product.sizeChoose}</span>
+                                    </Typography>
+                                    <Typography>
+                                        { formatMoney(product.price) }đ
+                                    </Typography>
+                                </ListItemText>
+                                <IconButton color='secondary'>
+                                    <DeleteIcon />
+                                </IconButton>
+                            </ListItem>
+                        )
+                    })
+                }
             </List>
             <div className={classes.fieldToTalMoney}>
                 <span>TỔNG TIỀN:</span>
-                <span style={{ marginLeft: 'auto' }}>0đ</span>
+                <span style={{ marginLeft: 'auto' }}>
+                    {
+                        formatMoney(products.reduce((acc, current) => acc + parseInt(current.price) * parseInt(current.quantity),0))
+                    }
+                đ</span>
             </div>
             <ListItem className={classes.listButton}>
                 <Link to="/cart" style={{textDecoration: 'none'}}>        
@@ -174,7 +196,8 @@ const Cart = props => {
 
 const mapStateToProps = state => {
     return {
-        statusCart: state.statusCart
+        statusCart: state.statusCart,
+        products: state.products
     }
 }
 const mapDispatchToProps = dispatch => {
