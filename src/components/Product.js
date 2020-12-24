@@ -83,7 +83,8 @@ const Product = props => {
     }
 
     const hanleClickAddToCart = () => {
-        props.codeProductAddCart(props.codeProduct)
+        props.sendCodeProduct(props.codeProduct)
+        props.getEventClickAddCart(props.codeProduct);
     }
     
     return (
@@ -122,7 +123,7 @@ const Product = props => {
                     </Box>
                 </Link>
                 <Typography className={classes.titleContent} variant="body2" component="p">
-                    { formatMoney(props.price) } đ
+                    { formatMoney(props.price.toString()) } đ
                 </Typography>
             </CardContent>
         </Card>
@@ -132,13 +133,8 @@ const Product = props => {
 const mapDispatchToProps = dispatch => {
     return {
         sendPath: path => dispatch({type: "SEND_PATH", path}),
-        test: test => dispatch({type: 'TEST', test})
-    }
-}
-const mapStateToProps = state => {
-    return {
-        
+        sendCodeProduct: codeProduct => dispatch({type: 'SEND_CODE_PRODUCT', codeProduct}),
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Product);
+export default connect(null, mapDispatchToProps)(Product);

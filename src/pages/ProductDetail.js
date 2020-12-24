@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
-import { Breadcrumbs, Button, Container, Divider, FormGroup, Grid, IconButton, List, ListItem, TextField, Typography } from '@material-ui/core';
+import { Breadcrumbs, Button, Container, Divider, Grid, List, ListItem, Typography } from '@material-ui/core';
 import { Link, useRouteMatch } from 'react-router-dom';
 import HomeIcon from '@material-ui/icons/Home';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import formatMoney from '../formatMoney';
 import { db } from '../firebase';
 import Slug from '../Slug';
 import { connect } from 'react-redux';
 import Products from '../components/Products';
+import { auth } from '../firebase';
 
 const useStyles = makeStyles((theme) => ({
     listImg: {
@@ -134,7 +133,41 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             fontSize: '0.8rem',
         }
-    }
+    },
+    boxQuantity: {
+        border: '1px solid #bbb',
+        width: 'fit-content',
+        display: 'flex',
+        height: 29,
+        [theme.breakpoints.down('sm')]: {
+            height: 25
+        }
+    },
+    btnQuantity: {
+        background: '#b7b7b7',
+        width: 30,
+        height: 29,
+        transition: '.3s',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        cursor: 'pointer',
+        '&:hover': {
+            background: '#8e8e8e'
+        },
+        [theme.breakpoints.down('sm')]: {
+            height: 25,
+            width: 26
+        }
+    },
+    divQuantity: {
+        margin: '0 15px',
+        display: 'flex',
+        alignItems: 'center',
+        [theme.breakpoints.down('sm')]: {
+            margin: 10,
+        }
+    },
 }))
 
 const ProductDetail = props => {
@@ -155,11 +188,11 @@ const ProductDetail = props => {
     const classes = useStyles();
     const [sizeList, setSizeList] = React.useState([]);
     const [size, setSize] =  React.useState(null);
-    // const [img, setImg] = React.useState('https://product.hstatic.net/1000306633/product/af7927b5-1ae5-496b-b589-d52aa69f5ea8_ca1219731ddd4163a2c3822a75fbb4f8_master.jpg')
-    // const imgUrlList = ['https://product.hstatic.net/1000306633/product/af7927b5-1ae5-496b-b589-d52aa69f5ea8_ca1219731ddd4163a2c3822a75fbb4f8_master.jpg', 'https://product.hstatic.net/1000306633/product/85136537-2914-40aa-80f5-c64ffacc7453_f8afd9938e33473ea1ca865532c854c4_master.jpg']
 
     const [imgUrlList, setImgUrlList] = React.useState([]);
     const [img, setImg] = React.useState(null)
+
+    const [cartFirebase, setCartFirebase] = React.useState([])
     
     const handleChooseImg = img => {
         setImg(img)
@@ -178,6 +211,95 @@ const ProductDetail = props => {
         size: [],
     });
     const [nameCategory, setNameCategory] = React.useState(null);
+
+    const handleClickAddToCart = (codeProduct) => {
+        let productAddCart = {
+            codeProduct: product.codeProduct,
+            imgUrl: product.imgUrl,
+            price: product.price,
+            nameCategory: product.nameCategory,
+            nameProduct: product.nameProduct,
+            quantity: product.quantity,
+            pathCategory: product.pathCategory,
+            sizeChoose: size ? size : 'S',
+        }
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                let cartFirebaseTemp = [...cartFirebase]
+                    
+                let cartTemp = []
+
+                let indexCheckExist = -1;
+                if(cartFirebaseTemp) {
+                    cartTemp = [...cartFirebaseTemp];
+                    indexCheckExist = cartFirebaseTemp.findIndex(item => item.codeProduct === codeProduct)
+                }
+                if(indexCheckExist >= 0) {
+                    cartTemp[indexCheckExist] = {...cartTemp[indexCheckExist], quantity: cartTemp[indexCheckExist].quantity + 1}
+                } else {
+                    cartTemp.push(productAddCart)
+                }
+                
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .update({
+                        cart: [
+                            ...cartTemp
+                        ]
+                    })
+                props.sendProductsToCart(cartTemp)
+            } else {
+                let cartLocalhost = JSON.parse(localStorage.getItem('cart'));
+
+                let cartTemp = []
+                
+                let indexCheckExist = -1;
+                if(cartLocalhost) {
+                    cartTemp = [...cartLocalhost];
+                    indexCheckExist = cartLocalhost.findIndex(item => item.codeProduct === codeProduct)
+                }
+                if(indexCheckExist >= 0) {
+                    cartTemp[indexCheckExist] = {...cartTemp[indexCheckExist], quantity: cartTemp[indexCheckExist].quantity + product.quantity}
+                } else {
+                    cartTemp.push(productAddCart)
+                }
+                
+                localStorage.setItem('cart', JSON.stringify(cartTemp));
+                props.sendProductsToCart(cartTemp)
+            }
+        })
+
+    }
+    const handleClickAddMore = () => {
+        setProduct({
+            ...product,
+            quantity: product.quantity + 1
+        })
+    }
+    const handleClickRemove = () => {
+        if(product.quantity > 1) {
+            setProduct({
+                ...product,
+                quantity: product.quantity - 1
+            })
+        }
+    }
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user =>  {
+            if(user) {
+                db.collection('users')
+                    .doc(user.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = []
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
+                        setCartFirebase(cartFirebase);
+                    })
+            }
+        })
+    }, [])
 
     useEffect(() => {
         db.collection('clothes')
@@ -304,23 +426,24 @@ const ProductDetail = props => {
                         </ListItem>
                         <Divider className={classes.divider}  />
                         <ListItem className={classes.listItemInfor}>
-                            <FormGroup className={classes.groupQuantity}>
-                                <IconButton className={classes.iconChangesQuantity}>
-                                    <RemoveIcon />
-                                </IconButton>
-                                <TextField
-                                    type="text"
-                                    defaultValue={1}
-                                    style={{width: 30, margin: '0 20px'}}
-                                />
-                                <IconButton className={classes.iconChangesQuantity}>
-                                    <AddIcon />
-                                </IconButton>
-                            </FormGroup>
+                            <div className={classes.boxQuantity}>
+                                <div 
+                                    className={classes.btnQuantity}
+                                    onClick={ () => handleClickRemove() }
+                                >-</div>
+                                <span className={classes.divQuantity}>{ product.quantity }</span>
+                                <div 
+                                    className={classes.btnQuantity}
+                                    onClick={ () => handleClickAddMore() }
+                                >+</div>
+                            </div>
                         </ListItem>
                         <Divider className={classes.divider}  />
                         <ListItem className={classes.listItemInfor}>
-                            <Button className={classes.addButton}>
+                            <Button 
+                            className={classes.addButton}
+                            onClick={ () => handleClickAddToCart(product.codeProduct)}
+                            >
                                     <AddShoppingCartIcon />
                                     <Typography 
                                         component='p'
@@ -352,4 +475,10 @@ const ProductDetail = props => {
     )
 }
 
-export default ProductDetail;
+const mapDispatchToProps = dispatch => {
+    return {
+        sendProductsToCart: products => dispatch({type: 'SEND_PRODUCTS_CART', products}),
+    }
+}
+
+export default connect(null, mapDispatchToProps)(ProductDetail);

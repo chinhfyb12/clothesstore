@@ -16,6 +16,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { connect } from 'react-redux';
 import Slug from '../Slug';
 import formatMoney from '../formatMoney';
+import { auth, db } from '../firebase'
 
 const useStyles = makeStyles((theme) => ({
     cartCpm: {
@@ -92,12 +93,57 @@ const useStyles = makeStyles((theme) => ({
 const Cart = props => {
 
     const [products, setProducts] = useState([]);
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = [...snapshot.data().cart]
+                        setProducts(cartFirebase)
+                    })
+            }
+        })
+    }, [])
 
     useEffect(() => {
-        if(localStorage.getItem('cart')) {
-            setProducts(JSON.parse(localStorage.getItem('cart')))
-        }
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                setProducts(props.products)
+            } else {
+                if(localStorage.getItem('cart')) {
+                    setProducts(JSON.parse(localStorage.getItem('cart')))
+                }
+            }
+        })
     }, [props.products])
+
+    const handleClickRemove = (codeProduct) => {
+        const index = products.findIndex(item => item.codeProduct === codeProduct);
+        if(index >= 0) {
+            products.splice(index, 1)
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    db.collection('users')
+                        .doc(auth.currentUser.uid)
+                        .update({
+                            cart: [
+                                ...products
+                            ]
+                        })
+                } else {
+                    localStorage.setItem('cart', JSON.stringify(products))
+                }
+            })
+            props.sendProductsToCart(products)
+        }
+    }
+
+    const handleClickLink = path => {
+        props.sendPath(path)
+        props.changeStatusCart()
+    }
+
     const classes = useStyles();
 
     return (
@@ -114,12 +160,16 @@ const Cart = props => {
                 {
                     products.map(product => {
                         return (
-                            <ListItem className={classes.item}>
+                            <ListItem 
+                                className={classes.item} 
+                                key={product.codeProduct}
+                            >
                                 <ListItemAvatar className={classes.boxAvatar}>
                                     <Badge color="primary" badgeContent={ product.quantity } style={{height: '100%'}}>
                                         <Link 
                                             to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
                                             style={{height: '100%'}}
+                                            onClick={ () => handleClickLink(Slug(product.nameCategory))}
                                         >
                                             <Avatar className={classes.avatar} src={product.imgUrl[0]} />
                                         </Link>
@@ -127,13 +177,15 @@ const Cart = props => {
                                 </ListItemAvatar>
                                 <ListItemText>
                                     <Typography>
-                                        <Link to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                        <Link 
+                                            to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
                                             style={{
                                                 textDecoration: 'none',
                                                 color: 'black',
                                                 fontFamily: 'Quicksand',
                                                 fontWeight: 'bold',
                                             }}
+                                            onClick={ () => handleClickLink(Slug(product.nameCategory))}
                                         >
                                             { product.nameProduct }
                                         </Link>
@@ -145,13 +197,16 @@ const Cart = props => {
                                             color: '#ababab',
                                         }}
                                     >
-                                        <span>ĐEN</span>/<span>{product.sizeChoose}</span>
+                                        <span>{product.sizeChoose}</span>
                                     </Typography>
                                     <Typography>
                                         { formatMoney(product.price) }đ
                                     </Typography>
                                 </ListItemText>
-                                <IconButton color='secondary'>
+                                <IconButton 
+                                    color='secondary'
+                                    onClick={ () => handleClickRemove(product.codeProduct)}
+                                >
                                     <DeleteIcon />
                                 </IconButton>
                             </ListItem>
@@ -163,7 +218,7 @@ const Cart = props => {
                 <span>TỔNG TIỀN:</span>
                 <span style={{ marginLeft: 'auto' }}>
                     {
-                        formatMoney(products.reduce((acc, current) => acc + parseInt(current.price) * parseInt(current.quantity),0))
+                        formatMoney(products.reduce((acc, current) => acc + current.price * current.quantity, 0).toString())
                     }
                 đ</span>
             </div>
@@ -202,7 +257,9 @@ const mapStateToProps = state => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        changeStatusCart: () => dispatch({type: 'CHANGE_STATUS_CART'})
+        sendPath: path => dispatch({type: "SEND_PATH", path}),
+        changeStatusCart: () => dispatch({type: 'CHANGE_STATUS_CART'}),
+        sendProductsToCart: products => dispatch({type: 'SEND_PRODUCTS_CART', products}),
     }
 }
 

@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
-import { Avatar, Breadcrumbs, Button, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from '@material-ui/core';
+import { Avatar, Breadcrumbs, Button, Grid, IconButton, List, ListItem, ListItemAvatar, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@material-ui/icons/Home';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { connect } from 'react-redux';
+import Slug from '../Slug';
+import formatMoney from '../formatMoney';
+import { auth, db } from '../firebase';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -45,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         background: 'white',
         justifyContent: 'space-between',
+        marginBottom: '10px'
     },
     boxInfo: {
         padding: '1rem',
@@ -121,9 +126,122 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const Cart = () => {
+const Cart = (props) => {
 
     const classes = useStyles();
+    const [products, setProducts] = useState([])
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user =>  {
+            if(user) {
+                db.collection('users')
+                    .doc(user.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = []
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
+                        setProducts(cartFirebase)
+                    })
+            }
+        })
+    }, [])
+
+    const handleClickAddMore = codeProduct => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                let tempCart = [...products];
+
+                const index = tempCart.findIndex(item => item.codeProduct === codeProduct)
+                if(index >= 0) {
+                    tempCart[index].quantity += 1
+                }
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .update({
+                        cart: [
+                            ...tempCart
+                        ]
+                    })
+                props.sendProductsToCart(tempCart)
+            } else {
+                let tempCart = [...products];
+
+                const index = tempCart.findIndex(item => item.codeProduct === codeProduct)
+                if(index >= 0) {
+                    tempCart[index].quantity += 1
+                }
+                localStorage.setItem('cart', JSON.stringify(tempCart));
+                props.sendProductsToCart(tempCart)
+            }
+        })
+    }
+    const handleClickRemove = codeProduct => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                let tempCart = [...products];
+
+                const index = tempCart.findIndex(item => item.codeProduct === codeProduct)
+                if(index >= 0) {
+                    if(tempCart[index].quantity > 1) {
+                        tempCart[index].quantity -= 1
+                    }
+                }
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .update({
+                        cart: [
+                            ...tempCart
+                        ]
+                    })
+                props.sendProductsToCart(tempCart)
+            } else {
+                let tempCart = [...products];
+
+                const index = tempCart.findIndex(item => item.codeProduct === codeProduct)
+                if(index >= 0) {
+                    if(tempCart[index].quantity > 1) {
+                        tempCart[index].quantity -= 1
+                    }
+                }
+                localStorage.setItem('cart', JSON.stringify(tempCart));
+                props.sendProductsToCart(tempCart)
+            }
+        })
+    }
+
+    const handleClickRemoveProduct = codeProduct => {
+        const index = products.findIndex(item => item.codeProduct === codeProduct);
+        if(index >= 0) {
+            products.splice(index, 1)
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    db.collection('users')
+                        .doc(auth.currentUser.uid)
+                        .update({
+                            cart: [
+                                ...products
+                            ]
+                        })
+                } else {
+                    localStorage.setItem('cart', JSON.stringify(products))
+                }
+            })
+            props.sendProductsToCart(products)
+        }
+    }
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+
+            } else {
+                if(localStorage.getItem('cart')) {
+                    setProducts(JSON.parse(localStorage.getItem('cart')))
+                }
+            }
+        })
+    }, [props.products])
 
     return (
         <section>
@@ -149,70 +267,90 @@ const Cart = () => {
                         GIỎ HÀNG CỦA BẠN
                     </Typography>
                     <List className={classes.list}>
-                        <ListItem className={classes.listItem}>
-                            <ListItemAvatar style={{maxWidth: 60}}>
-                                <Link to='/'>
-                                    <Avatar className={classes.avatar} src="https://scontent.fhan2-4.fna.fbcdn.net/v/t1.0-9/r180/102818648_738587936883572_7502889057776553100_n.jpg?_nc_cat=104&ccb=2&_nc_sid=09cbfe&_nc_ohc=R01YFQ-LuE8AX9GDVzX&_nc_ht=scontent.fhan2-4.fna&oh=35f134f9c90655f8a141cc03251d9ea6&oe=6002D74C" />
-                                </Link>
-                            </ListItemAvatar>
-                            <div className={classes.boxListName}>
-                                <div className={classes.listName}>
-                                    <Typography>
-                                        <Link to="/"
-                                            style={{
-                                                textDecoration: 'none',
-                                                color: 'black',
-                                                fontFamily: 'Quicksand',
-                                                fontWeight: 'bold',
-                                            }}
-                                        >
-                                            Sản phẩm 1
-                                        </Link>
-                                    </Typography>
-                                    <Typography
-                                        style={{
-                                            fontSize: '13px',
-                                            fontWeight: 'normal',
-                                            color: '#ababab',
-                                        }}
-                                    >
-                                        <span>ĐEN</span>/<span>S</span>
-                                    </Typography>
-                                </div>
-                                <div className={classes.boxQuantity}>
-                                    <div className={classes.btnQuantity}>-</div>
-                                    <span className={classes.divQuantity}>1</span>
-                                    <div className={classes.btnQuantity}>+</div>
-                                </div>
-                                <div>
-                                    <Typography component="p" style={{fontFamily: 'Quicksand', fontSize: '0.9rem'}}>
-                                        300.000 đ
-                                    </Typography>
-                                </div>
-                            </div>
-                            <div className={classes.boxMoney}>
-                                <div>
-                                    <Typography component="p" style={{fontFamily: 'Quicksand', width: 'max-content'}}>
-                                        Thành tiền
-                                    </Typography>
-                                    <Typography 
-                                        component="p" 
-                                        style={{
-                                            fontFamily: 'Quicksand',
-                                            fontWeight: 'bold',
-                                            fontSize: '0.9rem'
-                                        }}
-                                    >
-                                        300.000 đ
-                                    </Typography>
-                                </div>
-                                <div style={{display: 'flex', justifyContent: 'center'}}>
-                                    <IconButton color='secondary'>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </div>
-                            </div>
-                        </ListItem>
+                        {
+                            products.map(product => {
+                                return (
+                                    <ListItem key={product.codeProduct} className={classes.listItem}>
+                                        <ListItemAvatar style={{maxWidth: 60}}>
+                                            <Link
+                                                to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                                onClick={ () => props.sendPath(Slug(product.nameCategory)) }
+                                            >
+                                                <Avatar className={classes.avatar} src={ product.imgUrl[0] } />
+                                            </Link>
+                                        </ListItemAvatar>
+                                        <div className={classes.boxListName}>
+                                            <div className={classes.listName}>
+                                                <Typography>
+                                                    <Link 
+                                                        to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                                        style={{
+                                                            textDecoration: 'none',
+                                                            color: 'black',
+                                                            fontFamily: 'Quicksand',
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                        onClick={ () => props.sendPath(Slug(product.nameCategory)) }
+                                                    >
+                                                        { product.nameProduct }
+                                                    </Link>
+                                                </Typography>
+                                                <Typography
+                                                    style={{
+                                                        fontSize: '13px',
+                                                        fontWeight: 'normal',
+                                                        color: '#ababab',
+                                                    }}
+                                                >
+                                                    <span>{ product.sizeChoose }</span>
+                                                </Typography>
+                                            </div>
+                                            <div className={classes.boxQuantity}>
+                                                <div 
+                                                    className={classes.btnQuantity}
+                                                    onClick={ () => handleClickRemove(product.codeProduct) }
+                                                >-</div>
+                                                <span className={classes.divQuantity}>{ product.quantity }</span>
+                                                <div 
+                                                    className={classes.btnQuantity}
+                                                    onClick={ () => handleClickAddMore(product.codeProduct) }
+                                                >+</div>
+                                            </div>
+                                            <div>
+                                                <Typography component="p" style={{fontFamily: 'Quicksand', fontSize: '0.9rem'}}>
+                                                    { formatMoney(product.price) } đ
+                                                </Typography>
+                                            </div>
+                                        </div>
+                                        <div className={classes.boxMoney}>
+                                            <div>
+                                                <Typography component="p" style={{fontFamily: 'Quicksand', width: 'max-content'}}>
+                                                    Thành tiền
+                                                </Typography>
+                                                <Typography 
+                                                    component="p" 
+                                                    style={{
+                                                        fontFamily: 'Quicksand',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '0.9rem'
+                                                    }}
+                                                >
+                                                    { formatMoney((product.price * product.quantity).toString()) } đ
+                                                </Typography>
+                                            </div>
+                                            <div style={{display: 'flex', justifyContent: 'center'}}>
+                                                <IconButton 
+                                                    color='secondary'
+                                                    onClick={() => handleClickRemoveProduct(product.codeProduct)}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </div>
+                                        </div>
+                                    </ListItem>
+                                )
+                            })
+                        }
                     </List>
                 </Grid>
                 <Grid item xs={12} sm={12} md={3} lg={3} className={classes.boxInfo}>
@@ -220,7 +358,9 @@ const Cart = () => {
                         Thông tin đơn hàng
                     </Typography>
                     <Typography component="h6" style={{fontFamily: 'Quicksand', margin: '0.5rem 0'}}>
-                        Tổng tiền: <span style={{color: 'red', fontWeight: 'bold'}}> 300.000 đ </span>
+                        Tổng tiền: <span style={{color: 'red', fontWeight: 'bold'}}> {
+                            formatMoney(products.reduce((acc, current) => acc + current.price * current.quantity, 0).toString())
+                        } đ </span>
                     </Typography>
                     <Typography>
                         <Link to="/checkout" style={{textDecoration: 'none'}}>
@@ -235,5 +375,16 @@ const Cart = () => {
         </section>
     )
 }
+const mapDispatchToProps = dispatch => {
+    return {
+        sendProductsToCart: products => dispatch({type: 'SEND_PRODUCTS_CART', products}),
+        sendPath: path => dispatch({type: "SEND_PATH", path}),
+    }
+}
+const mapStateToProps = state => {
+    return {
+        products: state.products
+    }
+}
 
-export default Cart;
+export default connect(mapStateToProps, mapDispatchToProps)(Cart);

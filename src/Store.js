@@ -4,6 +4,8 @@ import statusCart from './components/reducers/StatusCartReducer';
 import initPathname from './components/reducers/SendInitPathnameReducer';
 import pathProduct from './components/reducers/SendPathProductReducer';
 import products from './components/reducers/SendProductsToCart';
+import codeProduct from './components/reducers/SendCodeProduct';
+import statusLoading from './components/reducers/StateLoadingReduer';
 
 const redux = require('redux')
 
@@ -13,7 +15,9 @@ const allReducers = redux.combineReducers({
     statusCart,
     initPathname,
     pathProduct,
-    products
+    products,
+    codeProduct,
+    statusLoading,
 })
 
 const store = redux.createStore(allReducers)

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Card, CardContent, Container, Grid, Typography } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { auth } from '../firebase'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     title: {
         fontFamily: 'Quicksand',
         fontWeight: 'bold',
@@ -62,7 +63,28 @@ const useStyles = makeStyles((theme) => ({
 
 const Account = () => {
 
+    let history = useHistory()
+
+    const [name, setName] = useState(null)
+    const [email, setEmail] = useState(null)
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                setName(user.displayName)
+                setEmail(user.email)
+            }
+        })
+    }, [])
+
     const classes = useStyles();
+
+    const handleClickLogout = () => {
+        auth.signOut()
+            .then(() => {
+                history.push('/login')
+            })
+    }
 
     return (
         <Container>
@@ -80,22 +102,25 @@ const Account = () => {
                             </Avatar>
                             <div>
                                 <Typography variant="h6" style={{ fontFamily: 'Quicksand', fontWeight: 'bold' }}>
-                                    Phạm Đình Chỉnh
+                                    { name }
                                 </Typography>
                                 <Typography componet="p" style={{ fontFamily: 'Quicksand' }}>
-                                    helloword123@gmail.com
+                                    { email }
                                 </Typography>
                             </div>
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12}>
-                    <Link to="/login" className={classes.boxLogout}>
+                <Grid item xs={12} style={{marginTop: '2rem'}}>
+                    <div 
+                        className={classes.boxLogout}
+                        onClick={ () => handleClickLogout() }
+                    >
                         <Typography componet="p">
                             Đăng xuất
                         </Typography>
                         <ExitToAppIcon />
-                    </Link>
+                    </div>
                 </Grid>
             </Grid>
         </Container>

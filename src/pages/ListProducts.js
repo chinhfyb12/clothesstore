@@ -12,7 +12,6 @@ import Slug from '../Slug';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { db } from '../firebase';
 import { useRouteMatch } from 'react-router-dom';
-import { connect } from 'react-redux';
 import Products from '../components/Products';
 
 const useStyles = makeStyles((theme) => ({

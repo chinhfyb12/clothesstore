@@ -1,7 +1,12 @@
 import { Avatar, Badge, Button, Grid, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { auth, db } from '../firebase';
+import Slug from '../Slug'
+import formatMoney from '../formatMoney';
+import ChatIcon from '@material-ui/icons/Chat';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -59,89 +64,101 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('md')]: {
             width: 195,
         }   
+    },
+    btnContact: {
+        margin: '1rem 0',
+        [theme.breakpoints.down('md')]: {
+            width: 210,
+        }  
     }
 }));
 
-const Checkout = () => {
+const Checkout = (props) => {
 
     const classes = useStyles();
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user =>  {
+            if(user) {
+                db.collection('users')
+                    .doc(user.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = []
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
+                        setProducts(cartFirebase)
+                    })
+            }
+        })
+    }, [])
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+
+            } else {
+                if(localStorage.getItem('cart')) {
+                    setProducts(JSON.parse(localStorage.getItem('cart')))
+                }
+            }
+        })
+    }, [props.products])
 
     return (
         <Grid container className={classes.root}>
             <Grid item xs={12} sm={12} md={6} className={classes.boxProduct}>
                 <List>
-                    <ListItem className={classes.itemProduct}>
-                        <ListItemAvatar className={classes.boxAvatar}>
-                            <Badge color="primary" badgeContent={ 1 } style={{height: '100%'}}>
-                                <Link to='/' style={{height: '100%'}}>
-                                    <Avatar className={classes.avatar} src="https://scontent.fhan2-4.fna.fbcdn.net/v/t1.0-9/r180/102818648_738587936883572_7502889057776553100_n.jpg?_nc_cat=104&ccb=2&_nc_sid=09cbfe&_nc_ohc=R01YFQ-LuE8AX9GDVzX&_nc_ht=scontent.fhan2-4.fna&oh=35f134f9c90655f8a141cc03251d9ea6&oe=6002D74C" />
-                                </Link>
-                            </Badge>
-                        </ListItemAvatar>
-                        <ListItemText>
-                            <div className={classes.listInfor}>
-                                <Typography>
-                                    <Link to="/" style={{
-                                            textDecoration: 'none',
-                                            color: 'black',
-                                            fontFamily: 'Quicksand',
-                                            fontWeight: 'bold',
-                                        }}
-                                    >
-                                        Sản phẩm 1
-                                    </Link>
-                                </Typography>
-                                <Typography
-                                    style={{
-                                        fontSize: '13px',
-                                        fontWeight: 'normal',
-                                        color: '#ababab',
-                                    }}
-                                >
-                                    <span>ĐEN</span>/<span>S</span>
-                                </Typography>
-                                <Typography>
-                                    350.000đ
-                                </Typography>
-                            </div>
-                        </ListItemText>
-                    </ListItem>
-                    <ListItem className={classes.itemProduct}>
-                        <ListItemAvatar className={classes.boxAvatar}>
-                            <Badge color="primary" badgeContent={ 1 } style={{height: '100%'}}>
-                                <Link to='/' style={{height: '100%'}}>
-                                    <Avatar className={classes.avatar} src="https://scontent.fhan2-4.fna.fbcdn.net/v/t1.0-9/r180/102818648_738587936883572_7502889057776553100_n.jpg?_nc_cat=104&ccb=2&_nc_sid=09cbfe&_nc_ohc=R01YFQ-LuE8AX9GDVzX&_nc_ht=scontent.fhan2-4.fna&oh=35f134f9c90655f8a141cc03251d9ea6&oe=6002D74C" />
-                                </Link>
-                            </Badge>
-                        </ListItemAvatar>
-                        <ListItemText>
-                            <div className={classes.listInfor}>
-                                <Typography>
-                                    <Link to="/" style={{
-                                            textDecoration: 'none',
-                                            color: 'black',
-                                            fontFamily: 'Quicksand',
-                                            fontWeight: 'bold',
-                                        }}
-                                    >
-                                        Sản phẩm 1
-                                    </Link>
-                                </Typography>
-                                <Typography
-                                    style={{
-                                        fontSize: '13px',
-                                        fontWeight: 'normal',
-                                        color: '#ababab',
-                                    }}
-                                >
-                                    <span>ĐEN</span>/<span>S</span>
-                                </Typography>
-                                <Typography>
-                                    350.000đ
-                                </Typography>
-                            </div>
-                        </ListItemText>
-                    </ListItem>
+                    {
+                        products.map(product => {
+                            return (
+                                <ListItem key={product.key} className={classes.itemProduct}>
+                                    <ListItemAvatar className={classes.boxAvatar}>
+                                        <Badge color="primary" badgeContent={ product.quantity } style={{height: '100%'}}>
+                                            <Link 
+                                                to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`}
+                                                style={{height: '100%'}}
+                                                onClick={ () => props.sendPath(Slug(product.nameCategory))}
+                                            >
+                                                <Avatar className={classes.avatar} src={product.imgUrl[0]} />
+                                            </Link>
+                                        </Badge>
+                                    </ListItemAvatar>
+                                    <ListItemText>
+                                        <div className={classes.listInfor}>
+                                            <Typography>
+                                                <Link 
+                                                    to={`/${Slug(product.nameCategory)}/${Slug(product.nameProduct)}.${product.codeProduct}`} 
+                                                    style={{
+                                                        textDecoration: 'none',
+                                                        color: 'black',
+                                                        fontFamily: 'Quicksand',
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                    onClick={ () => props.sendPath(Slug(product.nameCategory))}
+                                                >
+                                                    { product.nameProduct }
+                                                </Link>
+                                            </Typography>
+                                            <Typography
+                                                style={{
+                                                    fontSize: '13px',
+                                                    fontWeight: 'normal',
+                                                    color: '#ababab',
+                                                }}
+                                            >
+                                                <span>{product.sizeChoose}</span>
+                                            </Typography>
+                                            <Typography>
+                                                {formatMoney(product.price.toString())}đ
+                                            </Typography>
+                                        </div>
+                                    </ListItemText>
+                                </ListItem>
+                            )
+                        })
+                    }
                 </List>
                 <div 
                     style={{
@@ -152,7 +169,9 @@ const Checkout = () => {
                     }}
                 >
                     <Typography component="p">Tổng cộng: </Typography>
-                    <Typography className={classes.totalPrice}>300.000 đ</Typography>
+                    <Typography className={classes.totalPrice}>
+                        { formatMoney(products.reduce((acc, current) => acc + current.price * current.quantity, 0).toString()) }
+                    đ</Typography>
                 </div>
             </Grid>
             <Grid item xs={12} sm={12} md={6} className={classes.boxInfor}>
@@ -168,12 +187,40 @@ const Checkout = () => {
                 <TextField className={classes.fieldInput} id="standard-basic" type="text" label="Họ tên người nhận" required />
                 <TextField className={classes.fieldInput} id="standard-basic" type="text" label="Số điện thoại người nhận" required />
                 <TextField className={classes.fieldInput} id="standard-basic" type="text" label="Địa chỉ người nhận" required />
-                <Button className={classes.btnFinish} variant="outlined" color="primary">
+                <Button className={classes.btnFinish} variant="contained" color="primary">
                     Hoàn tất đơn hàng
+                </Button>
+                <Button className={classes.btnContact} variant="contained" color="primary">
+                    {/* <a 
+                        href='https://www.facebook.com/messages/t/100010311991504' 
+                        rel='noreferrer' 
+                        target='_blank'
+                        style={{
+                            color: 'white',
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                    > */}
+                        <ChatIcon style={{ marginRight: 5 }}/>
+                        Liên hệ người bán
+                    {/* </a> */}
                 </Button>
             </Grid>
         </Grid>
     )
 }
 
-export default Checkout;
+const mapDispatchToProps = dispatch => {
+    return {
+        sendPath: path => dispatch({type: "SEND_PATH", path}),
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        products: state.products
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Checkout);

@@ -15,6 +15,7 @@ import Menu from './Menu';
 import { connect } from 'react-redux';
 import Search from './Search';
 import Cart from './Cart';
+import { auth, db } from '../firebase'
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -122,6 +123,8 @@ const Navbar = props => {
 
     const classes = useStyles();
 
+    const [isLogin, setIsLogin] = useState(false)
+
     //style navbar
     const [appBarBg, setAppBarBg] = useState('appBar')
     const appBarRef = useRef();
@@ -145,6 +148,13 @@ const Navbar = props => {
     //end style
 
     useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                setIsLogin(true)
+            } else {
+                setIsLogin(false)
+            }
+        })
         //style navbar
         const handleScroll = () => {
             const show = window.scrollY > 200;
@@ -169,6 +179,37 @@ const Navbar = props => {
             document.removeEventListener('scroll', handleScroll);
         }
     }, [])
+
+    //process cart
+    const [quantity, setQuantity] = useState(0)
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = []
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
+                        setQuantity(cartFirebase.length)
+                    })
+            }
+        })
+    }, [])
+
+    useEffect(() => {
+        auth.onAuthStateChanged(user => {
+            if(user){}
+            else {
+                if(localStorage.getItem('cart')) {
+                    setQuantity(JSON.parse(localStorage.getItem('cart')).length)
+                }
+            }
+        })
+    }, [props.products])
+    //end process cart
 
     return (
         <div className={classes.grow}>
@@ -204,12 +245,11 @@ const Navbar = props => {
                             aria-label="show 1 new products"
                             onClick={ () => props.changeStatusCart() }
                         >
-                            <Badge badgeContent={ 1 } color="secondary">
+                            <Badge badgeContent={ quantity } color="secondary">
                                  <ShoppingCartIcon />
                             </Badge>
                         </IconButton>
-                        <Link to="/account">
-
+                        <Link to={ isLogin ? '/account' : '/login'}>
                             <IconButton 
                                 edge="end" 
                                 aria-label="show of current user" 
@@ -234,6 +274,7 @@ const mapStateToProps = state => {
         statusMenu: state.statusMenu,
         statusSearch: state.statusSearch,
         statusCart: state.statusCart,
+        products: state.products,
     }
 }
 const mapDispatchToProps = dispatch => {

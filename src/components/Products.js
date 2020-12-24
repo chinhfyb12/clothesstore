@@ -2,54 +2,81 @@ import React, { useEffect, useState } from 'react';
 import Product from './Product';
 import { connect } from 'react-redux';
 import { Grid } from '@material-ui/core';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 
 const Products = (props) => {
 
-    const [cart, setCart] = useState([]);
-    const [codeProduct, setCodeProduct] = useState(null)
-
+    const [cartFirebase, setCartFirebase] = useState([])
     useEffect(() => {
+        auth.onAuthStateChanged(user =>  {
+            if(user) {
+                db.collection('users')
+                    .doc(user.uid)
+                    .onSnapshot(snapshot => {
+                        let cartFirebase = []
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
+                        setCartFirebase(cartFirebase);
+                    })
+            }
+        })
+    }, [])
+    
+    const handleEventClick = (codeProduct) => {
         auth.onAuthStateChanged(user => {
             if(user) {
-
-            } else {
-                if(localStorage.getItem('cart')) {
-                    setCart(JSON.parse(localStorage.getItem('cart')))
+                let cartFirebaseTemp = [...cartFirebase]
+                    
+                let cartTemp = []
+                const index = props.children.findIndex(item => item.codeProduct === codeProduct)
+                let indexCheckExist = -1;
+                if(cartFirebaseTemp) {
+                    cartTemp = [...cartFirebaseTemp];
+                    indexCheckExist = cartFirebaseTemp.findIndex(item => item.codeProduct === codeProduct)
                 }
-            }
-        })
-    }, [codeProduct])
-
-    const getCodeProductAddCart = codeProduct => {
-        const index = props.children.findIndex(item => item.codeProduct === codeProduct)
-        setCodeProduct(index);
-
-        let tempCart = [];
-        let indexCheckExist;
-        if(cart[0]) {
-            tempCart = [...cart]
-            indexCheckExist = cart.findIndex(item => item.codeProduct === codeProduct);
-        }
-        if(indexCheckExist >= 0) {
-            tempCart[indexCheckExist] = {...tempCart[indexCheckExist], quantity: tempCart[indexCheckExist].quantity + 1}
-        } else {
-            tempCart.push({
-                ...props.children[index],
-                quantity: 1,
-                sizeChoose: 'S'
-            })
-        }
-
-        setCart(tempCart);
-        auth.onAuthStateChanged(user => {
-            if(user) {
-
+                if(indexCheckExist >= 0) {
+                    cartTemp[indexCheckExist] = {...cartTemp[indexCheckExist], quantity: cartTemp[indexCheckExist].quantity + 1}
+                } else {
+                    cartTemp.push({
+                        ...props.children[index],
+                        quantity: 1,
+                        sizeChoose: 'S',
+                    })
+                }
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .update({
+                        cart: [
+                            ...cartTemp
+                        ]
+                    })
+                props.sendProductsToCart(cartTemp)
             } else {
-                localStorage.setItem('cart', JSON.stringify(tempCart));
+                let cartLocalhost = JSON.parse(localStorage.getItem('cart'));
+
+                let cartTemp = []
+                const index = props.children.findIndex(item => item.codeProduct === codeProduct)
+                let indexCheckExist = -1;
+                if(cartLocalhost) {
+                    cartTemp = [...cartLocalhost];
+                    indexCheckExist = cartLocalhost.findIndex(item => item.codeProduct === codeProduct)
+                }
+                if(indexCheckExist >= 0) {
+                    cartTemp[indexCheckExist] = {...cartTemp[indexCheckExist], quantity: cartTemp[indexCheckExist].quantity + 1}
+                } else {
+                    cartTemp.push({
+                        ...props.children[index],
+                        quantity: 1,
+                        sizeChoose: 'S',
+                    })
+                }
+                
+                localStorage.setItem('cart', JSON.stringify(cartTemp));
+                props.sendProductsToCart(cartTemp)
             }
         })
-        props.sendProductsToCart(tempCart)
+    
     }
 
     if(props.children) {
@@ -62,7 +89,7 @@ const Products = (props) => {
                         nameCategory={product.nameCategory}
                         imgUrl={product.imgUrl}
                         codeProduct={product.codeProduct}
-                        codeProductAddCart={ getCodeProductAddCart }
+                        getEventClickAddCart={ handleEventClick }
                     />
                 </Grid>
             )
@@ -70,10 +97,16 @@ const Products = (props) => {
     }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapStateToProps = state => {
     return {
-        sendProductsToCart: products => dispatch({type: 'SEND_PRODUCTS_CART', products})
+        codeProduct: state.codeProduct
     }
 }
 
-export default connect(null, mapDispatchToProps)(Products);
+const mapDispatchToProps = dispatch => {
+    return {
+        sendProductsToCart: products => dispatch({type: 'SEND_PRODUCTS_CART', products}),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Products);

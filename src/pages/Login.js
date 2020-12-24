@@ -1,9 +1,14 @@
 import { Button, Container, FormGroup, Grid, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import { auth } from '../firebase';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
+    root: {
+        borderTop: '1px solid #e8e8e8'
+    },
     title: {
         display: 'flex',
         alignItems: 'center',
@@ -38,12 +43,32 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const Login = () => {
+const Login = (props) => {
+
+    let history = useHistory();
 
     const classes = useStyles();
 
+    const [email, setEmail] = useState(null)
+    const [pass, setPass] = useState(null);
+
+    const handleClickLogin = (e) => {
+        e.preventDefault();
+        props.changeStatusLoader()
+        if(email && pass) {
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    props.changeStatusLoader()
+                    history.push('/')
+                })
+                .catch(() => {
+                    props.changeStatusLoader()
+                })
+        }
+    }
+
     return (
-        <Container>
+        <Container className={classes.root}>
             <Grid container>
                 <Grid item lg={6} md={6} sm={12} xs={12} className={classes.title}>
                     <Typography variant="h4" className={classes.typographyTitle}>
@@ -52,41 +77,51 @@ const Login = () => {
                 </Grid>
                 <Grid item lg={6} md={6} sm={12} xs={12} className={classes.gridForm}>
                     <FormGroup>
-                        <TextField 
-                            id="filled-basic" 
-                            label="Email"
-                            variant="outlined" 
-                            type="email"
-                            className={classes.inputField}
-                        />
-                        <TextField 
-                            id="filled-basic"
-                            label="Mật khẩu"
-                            variant="outlined"
-                            type="password"
-                            className={classes.inputField}
-                        />
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginTop: '1rem',
-                        }}>
-                            <Button variant="outlined" color="primary" style={{borderRadius: 0}}>
-                                ĐĂNG NHẬP
-                            </Button>
-                            <Typography component="p" style={{ 
-                                margin: '0 1rem',
-                                fontStyle: 'italic',
-                                color: '#4a4a4a'
+                        <form style={{display: 'flex', flexDirection: 'column'}}>
+                            <TextField 
+                                id="filled-basic" 
+                                label="Email"
+                                variant="outlined" 
+                                type="email"
+                                className={classes.inputField}
+                                onChange={ e => setEmail(e.target.value) }
+                            />
+                            <TextField 
+                                id="filled-basic"
+                                label="Mật khẩu"
+                                variant="outlined"
+                                type="password"
+                                className={classes.inputField}
+                                onChange={ e => setPass(e.target.value) }
+                            />
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginTop: '1rem',
                             }}>
-                                or
-                            </Typography>
-                            <Link to="/register" style={{textDecoration: 'none'}}>
-                                <Button variant="outlined" color="primary" style={{borderRadius: 0}}>
-                                    ĐĂNG KÝ
+                                <Button 
+                                    variant="contained"
+                                    color="primary" 
+                                    style={{borderRadius: 0}}
+                                    onClick={ (e) => handleClickLogin(e) }
+                                    type="submit"
+                                >
+                                    ĐĂNG NHẬP
                                 </Button>
-                            </Link>
-                        </div>
+                                <Typography component="p" style={{ 
+                                    margin: '0 1rem',
+                                    fontStyle: 'italic',
+                                    color: '#4a4a4a'
+                                }}>
+                                    or
+                                </Typography>
+                                <Link to="/register" style={{textDecoration: 'none'}}>
+                                    <Button variant="outlined" color="primary" style={{borderRadius: 0}}>
+                                        ĐĂNG KÝ
+                                    </Button>
+                                </Link>
+                            </div>
+                        </form>
                     </FormGroup>
                 </Grid>
             </Grid>
@@ -94,4 +129,10 @@ const Login = () => {
     )
 }
 
-export default Login;
+const mapDispatchToProps = dispatch => {
+    return {
+        changeStatusLoader: () => dispatch({type: "CHANGE_STATUS_LOADER"}) 
+    }
+}
+
+export default connect(null, mapDispatchToProps)(Login);
