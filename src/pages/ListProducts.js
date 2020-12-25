@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccordionDetails, AccordionSummary, Checkbox, Container, FormControlLabel, FormGroup, Grid, InputLabel, List, ListItem, Select, Typography } from '@material-ui/core';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
@@ -8,11 +8,12 @@ import Radio from '@material-ui/core/Radio';
 import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FormControl from '@material-ui/core/FormControl';
+import useDeepCompareEffect from 'use-deep-compare-effect'
 import Slug from '../Slug';
-import useDeepCompareEffect from 'use-deep-compare-effect';
 import { db } from '../firebase';
 import { useRouteMatch } from 'react-router-dom';
 import Products from '../components/Products';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
     breacrumbs: {
@@ -104,17 +105,17 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             fontSize: '1.1rem',
         }
-    }
+    },
 }));
 
-const ListProducts = () => {
+const ListProducts = (props) => {
 
     const classes = useStyles();
 
     const { path } = useRouteMatch();
 
     const [radioValue, setRadioValue] = React.useState(null);
-    const [selectValue, setSelectValue] = React.useState(null);
+    // const [selectValue, setSelectValue] = React.useState(null);
     const [size, setSize] = React.useState(null);
 
     const [products, setProducts] = React.useState([]);
@@ -127,62 +128,132 @@ const ListProducts = () => {
 
     const handleChangeRadio = (value) => {
         setRadioValue(value);
+        setSize(null)
     };
-    const handleChangeSelect = (e) => {
-        setSelectValue(e.target.value)
-    }
+    // const handleChangeSelect = (e) => {
+    //     setSelectValue(e.target.value)
+    // }
     const handleChangeSize = value => {
         setSize(value)
+        setRadioValue(null)
     }
 
-    useDeepCompareEffect(() => {
-        if(path.slice(path.lastIndexOf('/') + 1)) {
-            if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
-                db.collection('clothes')
-                .onSnapshot(snapshoot => {
-                    if(snapshoot) {
-                        const listProduct = snapshoot.docs.map(cafe => {
-                            return {
-                                ...cafe.data(),
-                                docKey: cafe.id
-                            }
-                        });
-                        if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
-                            setNameCategory(listProduct[0].nameCategory)
-                        }
-                        setProducts(listProduct);
+    // useEffect(() => {
+    //     if(size) {
+    //         if(path.slice(path.lastIndexOf('/') + 1)) {
+    //             props.changeStatusLoader()
+    //             if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
+    //                 db.collection('clothes')
+    //                 .where('size', 'array-contains-any', [size])
+    //                 .get()
+    //                 .then(snapshot => {
+    //                     if(snapshot) {
+    //                         const listProduct = snapshot.docs.map(product => {
+    //                             return {
+    //                                 ...product.data(),
+    //                                 docKey: product.id
+    //                             }
+    //                         });
+    //                         if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+    //                             setNameCategory(listProduct[0].nameCategory)
+    //                         }
+    //                         setProducts(listProduct);
+    //                         window.scrollTo({
+    //                             top: 0,
+    //                             behavior: 'smooth'
+    //                         });
+    //                         props.changeStatusLoader()
+    //                     }
+    //                 }).catch(() => { props.changeStatusLoader() })
+    //             } else {
+    //                 db.collection('clothes')
+    //                     .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
+    //                     .where('size', 'array-contains-any', [size])
+    //                     .get()
+    //                     .then(snapshot => {
+    //                         if(snapshot) {
+    //                             const listProduct = snapshot.docs.map(product => {
+    //                                 return {
+    //                                     ...product.data(),
+    //                                     docKey: product.id
+    //                                 }
+    //                             });
+    //                             if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+    //                                 setNameCategory(listProduct[0].nameCategory)
+    //                             }
+    //                             setProducts(listProduct);
+    //                             window.scrollTo({
+    //                                 top: 0,
+    //                                 behavior: 'smooth'
+    //                             });
+    //                             props.changeStatusLoader()
+    //                         }
+    //                     }).catch(() => {
+    //                         props.changeStatusLoader()
+    //                     })
+    //             }
+    //         }
+    //     }
+    // }, [size])
 
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-                    }
-                })
-            } else {
-                db.collection('clothes')
-                    .where('pathCategory', 'array-contains-any', [path.slice(path.lastIndexOf('/') + 1)])
-                    .onSnapshot(snapshoot => {
-                        if(snapshoot) {
-                            const listProduct = snapshoot.docs.map(cafe => {
+    useDeepCompareEffect(() => {
+        // if(radioValue) {
+            let operator = radioValue === 'a' ? '<=' : '>'
+            if(path.slice(path.lastIndexOf('/') + 1)) {
+                props.changeStatusLoader()
+                if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
+                    db.collection('clothes')
+                    .where('price', operator, 500000)
+                    .get()
+                    .then(snapshot => {
+                        if(snapshot) {
+                            const listProduct = snapshot.docs.map(product => {
                                 return {
-                                    ...cafe.data(),
-                                    docKey: cafe.id
+                                    ...product.data(),
+                                    docKey: product.id
                                 }
                             });
                             if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
                                 setNameCategory(listProduct[0].nameCategory)
                             }
                             setProducts(listProduct);
-    
                             window.scrollTo({
                                 top: 0,
                                 behavior: 'smooth'
                             });
+                            props.changeStatusLoader()
                         }
-                    })
+                    }).catch(() => { props.changeStatusLoader() })
+                } else {
+                    console.log(path.slice(path.lastIndexOf('/') + 1))
+                    db.collection('clothes')
+                        .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
+                        .where('price', '>=', 500000)
+                        .get()
+                        .then(snapshot => {
+                            if(snapshot) {
+                                const listProduct = snapshot.docs.map(product => {
+                                    return {
+                                        ...product.data(),
+                                        docKey: product.id
+                                    }
+                                });
+                                if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                                    setNameCategory(listProduct[0].nameCategory)
+                                }
+                                setProducts(listProduct);
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                                props.changeStatusLoader()
+                            }
+                        }).catch(() => {
+                            props.changeStatusLoader()
+                        })
+                }
             }
-        }
-        
+        // }
     }, [products])
 
     return (
@@ -205,7 +276,7 @@ const ListProducts = () => {
                         </Link>
                         {
                             nameCategory ? (
-                                <Typography variant="h5" className={classes.titleProducts}>
+                                <Typography variant="h5" className={classes.navLink}>
                                     { nameCategory }
                                 </Typography>
                             ) : ''
@@ -293,20 +364,7 @@ const ListProducts = () => {
                                                 color="primary"
                                             />
                                             <Typography component="p" className={classes.typographyRadio}>
-                                                500.000 đ - 1.000.000 đ
-                                            </Typography>
-                                        </ListItem>
-                                        <ListItem 
-                                            style={{padding: '0', cursor: 'pointer'}}
-                                            onClick={() => handleChangeRadio('c')}
-                                        >
-                                            <Radio 
-                                                className={classes.radio}
-                                                checked={radioValue === 'c'}
-                                                color="primary"
-                                            />
-                                            <Typography component="p" className={classes.typographyRadio}>
-                                                Trên 1.000.000 đ
+                                                Trên 500.000 đ
                                             </Typography>
                                         </ListItem>
                                     </List>
@@ -362,7 +420,7 @@ const ListProducts = () => {
                                 </Typography>
                             )
                         }
-                        <FormControl className={classes.formSelect}>
+                        {/* <FormControl className={classes.formSelect}>
                             <InputLabel>Sắp xếp</InputLabel>
                             <Select
                                 native
@@ -373,7 +431,7 @@ const ListProducts = () => {
                                 <option value={0}>Giá: Giảm dần</option>
                                 <option value={1}>Giá: Tăng dần</option>
                             </Select>
-                        </FormControl>
+                        </FormControl> */}
                     </Grid>
                     <Products>
                         { products } 
@@ -384,4 +442,10 @@ const ListProducts = () => {
     )
 }
 
-export default ListProducts;
+const mapDispatchToProps = dispatch => {
+    return {
+        changeStatusLoader: () => dispatch({type: "CHANGE_STATUS_LOADER"}) 
+    }
+}
+
+export default connect(null, mapDispatchToProps)(ListProducts);

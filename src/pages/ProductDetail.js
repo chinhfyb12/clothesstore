@@ -367,7 +367,7 @@ const ProductDetail = props => {
                             ) : ''
                         }
                         {
-                            <Typography variant="h5" className={classes.titleProducts}>
+                            <Typography variant="h5" className={classes.navLink}>
                                 { product.nameProduct }
                             </Typography>
                         }

@@ -111,9 +111,9 @@ const Checkout = (props) => {
             <Grid item xs={12} sm={12} md={6} className={classes.boxProduct}>
                 <List>
                     {
-                        products.map(product => {
+                        products.map((product, index)=> {
                             return (
-                                <ListItem key={product.key} className={classes.itemProduct}>
+                                <ListItem key={index} className={classes.itemProduct}>
                                     <ListItemAvatar className={classes.boxAvatar}>
                                         <Badge color="primary" badgeContent={ product.quantity } style={{height: '100%'}}>
                                             <Link 

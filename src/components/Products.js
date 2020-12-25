@@ -41,7 +41,7 @@ const Products = (props) => {
                     cartTemp.push({
                         ...props.children[index],
                         quantity: 1,
-                        sizeChoose: 'S',
+                        sizeChoose: props.children[index].size[0],
                     })
                 }
                 db.collection('users')
@@ -68,10 +68,9 @@ const Products = (props) => {
                     cartTemp.push({
                         ...props.children[index],
                         quantity: 1,
-                        sizeChoose: 'S',
+                        sizeChoose: props.children[index].size[0],
                     })
                 }
-                
                 localStorage.setItem('cart', JSON.stringify(cartTemp));
                 props.sendProductsToCart(cartTemp)
             }

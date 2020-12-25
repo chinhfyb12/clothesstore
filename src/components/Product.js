@@ -34,6 +34,7 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.8rem',
         margin: '10px 0',
         textAlign: 'center',
+        textTransform: 'uppercase'
     },
     titleContent: {
         fontFamily: 'Quicksand',

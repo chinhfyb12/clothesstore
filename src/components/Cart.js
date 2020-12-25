@@ -30,11 +30,12 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 9,
         top: 0,
         right: 0,
-        minHeight: '100vh',
+        height: '100vh',
         transition: '.3s',
         transform: 'translateX(0)',
         paddingTop: '3rem',
         fontFamily: 'Quicksand',
+        overflow: 'scroll',
         [theme.breakpoints.down('sm')]: {
             width: '85%',
             padding: '1rem',
@@ -99,7 +100,10 @@ const Cart = props => {
                 db.collection('users')
                     .doc(auth.currentUser.uid)
                     .onSnapshot(snapshot => {
-                        let cartFirebase = [...snapshot.data().cart]
+                        let cartFirebase = [];
+                        if(snapshot.data().cart) {
+                            cartFirebase = [...snapshot.data().cart]
+                        }
                         setProducts(cartFirebase)
                     })
             }
@@ -200,7 +204,7 @@ const Cart = props => {
                                         <span>{product.sizeChoose}</span>
                                     </Typography>
                                     <Typography>
-                                        { formatMoney(product.price) }đ
+                                        { formatMoney(product.price.toString()) }đ
                                     </Typography>
                                 </ListItemText>
                                 <IconButton 
