@@ -65,6 +65,7 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('xs')]: {
             fontSize: '1rem'
         },
+        height: '100%'
     },
     cartIcon: {
         color: '#2b2b2b',
@@ -229,7 +230,7 @@ const Navbar = props => {
                     </IconButton>
                     <Typography variant="h6" noWrap>
                         <Link to="/" className={classes.navLink}>
-                            <img style={{width: '100%'}} src={logo} alt=""/>
+                            <img style={{width: '100%', height: '100%'}} src={logo} alt=""/>
                         </Link>
                     </Typography>
                     <div className={classes.boxIcon}>

@@ -17,7 +17,7 @@ function App(props) {
       top: 0, 
       left: 0,
       zIndex: 999
-    }
+    },
   }))
   const classes = useStyles()
 

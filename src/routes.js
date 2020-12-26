@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
+import Search from './pages/Search';
+import Admin from './pages/admin/Admin';
 
 const routes = [
     {
@@ -61,8 +63,18 @@ const routes = [
     },
     {
         path: '/detail',
-        exact: false,
+        exact: true,
         main: () => <ProductDetail/>
+    },
+    {
+        path: '/search',
+        exact: false,
+        main: () => <Search />
+    },
+    {
+        path: '/admin',
+        exact: true,
+        main: () => <Admin />
     },
 ]
 

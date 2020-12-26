@@ -74,6 +74,10 @@ const Search = props => {
         props.sendPath(path)
         props.changeStatusSearch()
     }
+    const handleClickSearch = () => {
+        props.sendDataSearch(productsSearch)
+        props.changeStatusSearch()
+    }
 
     useEffect(() => {
         db.collection('clothes')
@@ -124,9 +128,16 @@ const Search = props => {
                     onChange={ e => handleSearch(e) }
                 />
                 <Divider className={classes.divider} orientation="vertical" />
-                <IconButton className={ classes.iconButton } type="submit" aria-label="search">
-                    <SearchIcon />
-                </IconButton>
+                <Link to='/search'>
+                    <IconButton 
+                        className={ classes.iconButton } 
+                        type="submit" 
+                        aria-label="search"
+                        onClick={ () => handleClickSearch() }
+                    >
+                        <SearchIcon />
+                    </IconButton>
+                </Link>
             </form>
             <List>
                 {
@@ -161,6 +172,7 @@ const mapDispatchToProps = dispatch => {
     return {
         changeStatusSearch: () => dispatch({type: 'CHANGE_STATUS_SEARCH'}),
         sendPath: path => dispatch({type: "SEND_PATH", path}),
+        sendDataSearch: productsSearch => dispatch({type: "SEND_DATA_SEARCH", productsSearch})
     }
 }
 

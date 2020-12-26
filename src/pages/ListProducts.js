@@ -7,8 +7,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import Radio from '@material-ui/core/Radio';
 import Accordion from '@material-ui/core/Accordion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import FormControl from '@material-ui/core/FormControl';
-import useDeepCompareEffect from 'use-deep-compare-effect'
+// import FormControl from '@material-ui/core/FormControl';
 import Slug from '../Slug';
 import { db } from '../firebase';
 import { useRouteMatch } from 'react-router-dom';
@@ -77,6 +76,7 @@ const useStyles = makeStyles((theme) => ({
     },
     listProduct: {
         padding: '0 2rem',
+        flexDirection: 'column',
         [theme.breakpoints.down('sm')]: {
             padding: '2rem 0',
         }
@@ -138,66 +138,120 @@ const ListProducts = (props) => {
         setRadioValue(null)
     }
 
-    // useEffect(() => {
-    //     if(size) {
-    //         if(path.slice(path.lastIndexOf('/') + 1)) {
-    //             props.changeStatusLoader()
-    //             if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
-    //                 db.collection('clothes')
-    //                 .where('size', 'array-contains-any', [size])
-    //                 .get()
-    //                 .then(snapshot => {
-    //                     if(snapshot) {
-    //                         const listProduct = snapshot.docs.map(product => {
-    //                             return {
-    //                                 ...product.data(),
-    //                                 docKey: product.id
-    //                             }
-    //                         });
-    //                         if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
-    //                             setNameCategory(listProduct[0].nameCategory)
-    //                         }
-    //                         setProducts(listProduct);
-    //                         window.scrollTo({
-    //                             top: 0,
-    //                             behavior: 'smooth'
-    //                         });
-    //                         props.changeStatusLoader()
-    //                     }
-    //                 }).catch(() => { props.changeStatusLoader() })
-    //             } else {
-    //                 db.collection('clothes')
-    //                     .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
-    //                     .where('size', 'array-contains-any', [size])
-    //                     .get()
-    //                     .then(snapshot => {
-    //                         if(snapshot) {
-    //                             const listProduct = snapshot.docs.map(product => {
-    //                                 return {
-    //                                     ...product.data(),
-    //                                     docKey: product.id
-    //                                 }
-    //                             });
-    //                             if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
-    //                                 setNameCategory(listProduct[0].nameCategory)
-    //                             }
-    //                             setProducts(listProduct);
-    //                             window.scrollTo({
-    //                                 top: 0,
-    //                                 behavior: 'smooth'
-    //                             });
-    //                             props.changeStatusLoader()
-    //                         }
-    //                     }).catch(() => {
-    //                         props.changeStatusLoader()
-    //                     })
-    //             }
-    //         }
-    //     }
-    // }, [size])
+    useEffect(() => {
+        if(size) {
+            if(path.slice(path.lastIndexOf('/') + 1)) {
+                props.changeStatusLoader()
+                if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
+                    db.collection('clothes')
+                    .where('size', 'array-contains-any', [size])
+                    .get()
+                    .then(snapshot => {
+                        if(snapshot) {
+                            const listProduct = snapshot.docs.map(product => {
+                                return {
+                                    ...product.data(),
+                                    docKey: product.id
+                                }
+                            });
+                            if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                                setNameCategory(listProduct[0].nameCategory)
+                            }
+                            setProducts(listProduct);
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                            props.changeStatusLoader()
+                        }
+                    }).catch(() => { props.changeStatusLoader() })
+                } else {
+                    db.collection('clothes')
+                        .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
+                        .where('size', 'array-contains-any', [size])
+                        .get()
+                        .then(snapshot => {
+                            if(snapshot) {
+                                const listProduct = snapshot.docs.map(product => {
+                                    return {
+                                        ...product.data(),
+                                        docKey: product.id
+                                    }
+                                });
+                                if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                                    setNameCategory(listProduct[0].nameCategory)
+                                }
+                                setProducts(listProduct);
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                                props.changeStatusLoader()
+                            }
+                        }).catch(() => {
+                            props.changeStatusLoader()
+                        })
+                }
+            }
+        }
+    }, [size])
 
-    useDeepCompareEffect(() => {
-        // if(radioValue) {
+    useEffect(() => {
+        if(path.slice(path.lastIndexOf('/') + 1)) {
+            props.changeStatusLoader()
+            if(path.slice(path.lastIndexOf('/') + 1) === 'all') {
+                db.collection('clothes')
+                .get()
+                .then(snapshot => {
+                    if(snapshot) {
+                        const listProduct = snapshot.docs.map(product => {
+                            return {
+                                ...product.data(),
+                                docKey: product.id
+                            }
+                        });
+                        if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                            setNameCategory(listProduct[0].nameCategory)
+                        }
+                        setProducts(listProduct);
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                        props.changeStatusLoader()
+                    }
+                }).catch(() => { props.changeStatusLoader() })
+            } else {
+                db.collection('clothes')
+                    .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
+                    .get()
+                    .then(snapshot => {
+                        if(snapshot) {
+                            const listProduct = snapshot.docs.map(product => {
+                                return {
+                                    ...product.data(),
+                                    docKey: product.id
+                                }
+                            });
+                            if(Slug(listProduct[0].nameCategory) === path.slice(path.lastIndexOf('/') + 1)) {
+                                setNameCategory(listProduct[0].nameCategory)
+                            }
+                            setProducts(listProduct);
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                            props.changeStatusLoader()
+                        }
+                    }).catch(() => {
+                        props.changeStatusLoader()
+                    })
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if(radioValue) {
             let operator = radioValue === 'a' ? '<=' : '>'
             if(path.slice(path.lastIndexOf('/') + 1)) {
                 props.changeStatusLoader()
@@ -225,10 +279,9 @@ const ListProducts = (props) => {
                         }
                     }).catch(() => { props.changeStatusLoader() })
                 } else {
-                    console.log(path.slice(path.lastIndexOf('/') + 1))
                     db.collection('clothes')
                         .where('pathCategory', '==', path.slice(path.lastIndexOf('/') + 1))
-                        .where('price', '>=', 500000)
+                        .where('price', operator, 500000)
                         .get()
                         .then(snapshot => {
                             if(snapshot) {
@@ -253,8 +306,8 @@ const ListProducts = (props) => {
                         })
                 }
             }
-        // }
-    }, [products])
+        }
+    }, [radioValue])
 
     return (
         <section>
@@ -408,7 +461,7 @@ const ListProducts = (props) => {
                     </Accordion>
                 </div>
                 <Grid container className={classes.listProduct}>
-                    <Grid item xs={12} style={{display: 'flex', alignItems: 'center', marginBottom: '1rem'}}>
+                    <div style={{display: 'flex', height: 'fit-content'}}>
                         {
                             nameCategory ? (
                                 <Typography variant="h5" className={classes.titleProducts}>
@@ -432,10 +485,12 @@ const ListProducts = (props) => {
                                 <option value={1}>Giá: Tăng dần</option>
                             </Select>
                         </FormControl> */}
+                    </div>
+                    <Grid container>
+                        <Products>
+                            { products } 
+                        </Products>
                     </Grid>
-                    <Products>
-                        { products } 
-                    </Products>
                 </Grid>
             </Container>
         </section>

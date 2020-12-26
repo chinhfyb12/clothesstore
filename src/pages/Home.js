@@ -23,14 +23,6 @@ const useStyles = makeStyles(() => ({
         position: 'relative',
         display: 'flex',
         justifyContent: 'center',
-        '&:after': {
-            position: 'absolute',
-            content: '""',
-            top: '100%',
-            width: '80%',
-            height: '2px',
-            background: 'black',
-        }
     }
 }))
 
@@ -60,7 +52,7 @@ const Home = () => {
     }, [products])
 
     return (
-        <section>
+        <section style={{overflow: 'hidden'}}>
             <SectionSlider />
             <Box component="div" className={classes.boxTitle}>
                 <Typography className={classes.title}>

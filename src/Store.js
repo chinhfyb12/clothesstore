@@ -6,6 +6,7 @@ import pathProduct from './components/reducers/SendPathProductReducer';
 import products from './components/reducers/SendProductsToCart';
 import codeProduct from './components/reducers/SendCodeProduct';
 import statusLoading from './components/reducers/StateLoadingReduer';
+import productsSearch from './components/reducers/SendDataToSearch';
 
 const redux = require('redux')
 
@@ -18,6 +19,7 @@ const allReducers = redux.combineReducers({
     products,
     codeProduct,
     statusLoading,
+    productsSearch,
 })
 
 const store = redux.createStore(allReducers)

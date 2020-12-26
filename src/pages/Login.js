@@ -51,18 +51,21 @@ const Login = (props) => {
 
     const [email, setEmail] = useState(null)
     const [pass, setPass] = useState(null);
+    const [error, setError] = useState(false)
 
     const handleClickLogin = (e) => {
         e.preventDefault();
-        props.changeStatusLoader()
         if(email && pass) {
+            props.changeStatusLoader()
             auth.signInWithEmailAndPassword(email, pass)
                 .then(() => {
                     props.changeStatusLoader()
                     history.push('/')
+                    setError(false)
                 })
                 .catch(() => {
                     props.changeStatusLoader()
+                    setError(true)
                 })
         }
     }
@@ -94,6 +97,9 @@ const Login = (props) => {
                                 className={classes.inputField}
                                 onChange={ e => setPass(e.target.value) }
                             />
+                            {
+                                error ? <span style={{color: 'red', fontStyle: 'italic'}}>Lỗi đăng nhập, vui lòng thử lại!</span> : ''
+                            }
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',

@@ -52,6 +52,7 @@ const Register = (props) => {
     const [email, setEmail] = useState(null)
     const [pass, setPass] = useState(null)
     const [name, setName] = useState(null)
+    const [error, setError] = useState(false)
 
     const handleClickRegister = (e) => {
         e.preventDefault();
@@ -67,10 +68,12 @@ const Register = (props) => {
                         }).then(() => {
                             history.push('/')
                             props.changeStatusLoader()
+                            setError(false)
                         })
                     })
                 }).catch(() => {
                     props.changeStatusLoader();
+                    setError(true)
                 })
         }
     }
@@ -134,6 +137,9 @@ const Register = (props) => {
                                 className={classes.inputField}
                                 onChange={ e => setPass(e.target.value) }
                             />
+                            {
+                                error ? <span style={{color: 'red', fontStyle: 'italic'}}>Lỗi đăng nhập, vui lòng thử lại!</span> : ''
+                            }
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',

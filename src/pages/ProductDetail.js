@@ -322,7 +322,7 @@ const ProductDetail = props => {
                 })
             })
         db.collection('clothes')
-            .where('pathCategory', 'array-contains-any', [pathCategory])
+            .where('pathCategory', '==', pathCategory)
             .where('codeProduct', '!=', pCode)
             .limit(5)
             .onSnapshot(snapshoot => {
